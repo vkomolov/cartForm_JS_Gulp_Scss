@@ -5,21 +5,28 @@
     <meta name="description" content="STAMAX Task">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Front-end Developer Test Task</title>
-    <link rel="stylesheet" type="text/css" href="./css/styles.css">
-    <script src="js/main.js"></script>
+    <link rel="stylesheet" href="./css/main.min.css">
+    <script src="./js/main.min.js"></script>
 </head>
 <body>
 <header>
     <div class="top-wrapper flex-box between">
         <div class="flex-box center">
-            <img src="./img/header_symbol.png" alt="header_symbol" width="50" height="50">
-            <span class="header__heading">Front-end Developer Test Task</span>
+            <img src="./img/header_symbol.png"
+                 class="header__logo-image"
+                 alt="header_symbol"
+            >
+            <span class="header__logo-heading">
+                Front-end Developer Test Task
+            </span>
         </div>
         <div class="flex-box center">
             <span class="header__cart-span">cart</span>
-            <div class="image-container cart-icon">
+            <div class="image-container header__cart-icon-block">
                 <span id="cart__qnty">0</span>
-                <img src="./img/shopping-cart.png" alt="shopping-cart-icon">
+                <img src="./img/shopping-cart.png"
+                     alt="shopping-cart-icon"
+                >
             </div>
         </div>
     </div>
@@ -27,24 +34,29 @@
 <main class="top-wrapper">
     <div class="person-info">
         <form action="#" name="order-form" id="order-form">
-            <div class="flex-box left" data-type="stage-wrapper">
+            <div id="form__stage-wrapper">    <!--will be searched by JS-->
                 <span class="active" data-type="stage">Shipping</span>
-                <img src="./img/arrow-right.png" alt="arrow-space" width="40" height="40">
+                <img src="./img/arrow-right.png" alt="arrow-space">
                 <span data-type="stage">Billing</span>
-                <img src="./img/arrow-right.png" alt="arrow-space" width="40" height="40">
+                <img src="./img/arrow-right.png" alt="arrow-space">
                 <span data-type="stage">Payment</span>
             </div>
             <div class="form__block active">
                 <h2>Shipping Info</h2>
                 <h3>Recipient</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="recipient-full-name" class="form__input"
-                           placeholder="Full Name" title="" maxlength="30" required>
+                    <input type="text" name="recipient-full-name"
+                           class="form__input" placeholder="Full Name"
+                           title="" maxlength="30" required
+                    >
                 </div>
                 <div class="flex-box left">
                     <div class="input-wrapper">
-                        <input type="text" name="recipient-phone-number" class="form__input part-width-smaller" placeholder="Daytime Phone"
-                               title="" maxlength="20" required>
+                        <input type="text" name="recipient-phone-number"
+                               class="form__input part-width-smaller"
+                               placeholder="Daytime Phone"
+                               title="" maxlength="20" required
+                        >
                     </div>
                     <div class="form__block__comment">
                         <span>For delivery questions only</span>
@@ -52,15 +64,23 @@
                 </div>
                 <h3>Address</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="recipient-street-address" class="form__input" placeholder="Street Address"
-                           title="" maxlength="25" required>
+                    <input type="text" name="recipient-street-address"
+                           class="form__input" placeholder="Street Address"
+                           title="" maxlength="25" required
+                    >
                 </div>
                 <div class="input-wrapper">
-                    <input type="text" name="optional" class="form__input" placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
-                           title="" maxlength="25">
+                    <input type="text" name="optional"
+                           class="form__input"
+                           placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
+                           title="" maxlength="25"
+                    >
                 </div>
                 <div class="input-wrapper target-sign push-top_30">
-                    <input type="text" name="recipient-city" class="form__input" placeholder="City" title="" maxlength="25" required>
+                    <input type="text" name="recipient-city"
+                           class="form__input" placeholder="City"
+                           title="" maxlength="25" required
+                    >
                 </div>
                 <div class="flex-box between">
                     <div class="input-wrapper selection push-top_30">
@@ -68,41 +88,59 @@
                             <span data-type="recipient-country">Country</span>
                         </div>
                         <div class="option__block">
-                            <input type="text" name="recipient-country" class="form__input part-width-smaller" placeholder="Country"
-                                   maxlength="25" required>
+                            <input type="text" name="recipient-country"
+                                   class="form__input part-width-smaller"
+                                   placeholder="Country"
+                                   maxlength="25" required
+                            >
                         </div>
                     </div>
                     <div class="input-wrapper push-top_30">
-                        <input type="text" name="recipient-zip" class="form__input part-width-small" placeholder="ZIP"
-                               maxlength="8" required>
+                        <input type="text" name="recipient-zip"
+                               class="form__input part-width-small"
+                               placeholder="ZIP"
+                               maxlength="8" required
+                        >
                     </div>
                 </div>
             </div>
-            <div class="form__block">
+            <div class="form__block active">
                 <div class="flex-box between end">
                     <h2>Billing Information</h2>
                     <span class="comment">Same as shipping</span>
                 </div>
                 <h3>Billing Contact</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="billing-full-name" class="form__input" placeholder="Full Name"
-                           title="" maxlength="30" required>
+                    <input type="text" name="billing-full-name"
+                           class="form__input" placeholder="Full Name"
+                           title="" maxlength="30" required
+                    >
                 </div>
                 <div class="input-wrapper">
-                    <input type="email" name="billing-email" class="form__input" placeholder="Email Address" title=""
-                           maxlength="30" required>
+                    <input type="email" name="billing-email"
+                           class="form__input" placeholder="Email Address"
+                           title="" maxlength="30" required
+                    >
                 </div>
                 <h3>Billing Address</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="billing-street-address" class="form__input" placeholder="Street Address" title=""
-                           maxlength="25" required>
+                    <input type="text" name="billing-street-address"
+                           class="form__input" placeholder="Street Address"
+                           title="" maxlength="25" required
+                    >
                 </div>
                 <div class="input-wrapper">
-                    <input type="text" name="billing-optional" class="form__input" placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
-                           maxlength="25" title="">
+                    <input type="text" name="billing-optional"
+                           class="form__input"
+                           placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
+                           maxlength="25" title=""
+                    >
                 </div>
                 <div class="input-wrapper target-sign push-top_30">
-                    <input type="text" name="billing-city" class="form__input" placeholder="City" title="" maxlength="25" required>
+                    <input type="text" name="billing-city"
+                           class="form__input" placeholder="City"
+                           title="" maxlength="25" required
+                    >
                 </div>
                 <div class="flex-box between">
                     <div class="input-wrapper selection push-top_30">
@@ -110,17 +148,23 @@
                             <span data-type="billing-country">Country</span>
                         </div>
                         <div class="option__block">
-                            <input type="text" name="billing-country" class="form__input part-width-smaller" placeholder="Country"
-                                   maxlength="25" required>
+                            <input type="text" name="billing-country"
+                                   class="form__input part-width-smaller"
+                                   placeholder="Country"
+                                   maxlength="25" required
+                            >
                         </div>
                     </div>
                     <div class="input-wrapper push-top_30">
-                        <input type="text" name="billing-zip" class="form__input part-width-small" placeholder="ZIP"
-                               maxlength="8" required>
+                        <input type="text" name="billing-zip"
+                               class="form__input part-width-small"
+                               placeholder="ZIP"
+                               maxlength="8" required
+                        >
                     </div>
                 </div>
             </div>
-            <div class="form__block">
+            <div class="form__block active">
                 <h2>Payment</h2>
                 <div class="form__block__secure">
                     <div class="image-container">
@@ -130,32 +174,45 @@
                 </div>
                 <h3>Cardholder Name</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="card-name" class="form__input" placeholder="Name as it appears on your card" title=""
-                           maxlength="30" required>
+                    <input type="text" name="card-name"
+                           class="form__input"
+                           placeholder="Name as it appears on your card"
+                           title="" maxlength="30" required
+                    >
                 </div>
                 <h3>Card Number</h3>
                 <div class="input-wrapper">
-                    <input type="text" name="card-number" class="form__input" placeholder="XXXX XXXX XXXX XXXX XXXX"
-                           maxlength="24" title="" required>
+                    <input type="text" name="card-number"
+                           class="form__input"
+                           placeholder="XXXX XXXX XXXX XXXX XXXX"
+                           maxlength="24" title="" required
+                    >
                 </div>
                 <div class="card-date-wrapper flex-box left">
                     <div>
                         <h3>Expire Date</h3>
                         <div class="input-wrapper">
-                            <input type="text" name="card-date" class="form__input part-width-smallest" placeholder="MM / YY" title=""
-                                   maxlength="7" required>
+                            <input type="text" name="card-date"
+                                   class="form__input part-width-smallest"
+                                   placeholder="MM / YY" title=""
+                                   maxlength="7" required
+                            >
                         </div>
                     </div>
                     <div>
                         <h3>Security Code</h3>
                         <div class="input-wrapper">
-                            <input type="text" name="card-code" class="form__input part-width-smallest" title=""
-                                   maxlength="4" required>
+                            <input type="text" name="card-code"
+                                   class="form__input part-width-smallest"
+                                   title="" maxlength="4" required
+                            >
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="button_continue" data-type="continue"><span>Continue</span></div>
+            <div class="button_continue" data-type="continue">
+                <span>Continue</span>
+            </div>
         </form>
         <div class="thankU-wrapper">
             <h2>Thank You for Your order!</h2>
@@ -172,7 +229,7 @@
         </div>
     </div>
     <div class="cart-info">
-        <div class="cart-info__heading flex-box between">
+        <div class="cart-info__heading">
             <h3>Order Summary</h3>
             <span class="order-edit" data-type="orderEdit">edit order</span>
         </div>
@@ -202,5 +259,14 @@
         </footer>
     </div>
 </main>
+<footer>
+    <div class="top-wrapper">
+        <div>
+            <h3>Vadim Komolov</h3>
+            <span>e-mail: vkomolov1974@gmail.com</span>
+            <span>telephone: =(380) 66 335-28-98</span>
+        </div>
+    </div>
+</footer>
 </body>
 </html>

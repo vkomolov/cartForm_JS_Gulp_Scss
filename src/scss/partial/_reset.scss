@@ -30,14 +30,14 @@ footer, header, hgroup, menu, nav, section {
 
 a {
 	display: inline-block;
-	text-decoration: none;
+	/* text-decoration: none; */
 	color: inherit;
 }
 
 input, textarea {
-	outline: 0; box-shadow: none;
+	outline: none; box-shadow: none;
 	&:active {
-		outline: 0; box-shadow: none;
+		outline: none; box-shadow: none;
 	}
 }
 
