@@ -185,6 +185,15 @@ h3 {
   text-transform: capitalize;
   color: #7a3fa8; }
 
+.image-container {
+  display: inline-block; }
+  .image-container.goods {
+    width: 90px;
+    height: 90px;
+    padding: 1px;
+    border: 1px solid gainsboro;
+    border-radius: 5px; }
+
 header {
   padding: 20px 0;
   background-color: white;

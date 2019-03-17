@@ -72,7 +72,7 @@ function () {
   /**constructor
    * @param {array} skuArr: Array of Sku samples;
    * @param {number} tax: taxes as the share, percentage in {number};
-   * @param {number} shippingCost: shipping cost;
+   * @param {number} shippingCost: cost as the share, percentage in {number};
    * @param {object} payer;  the sample of Payer;
    * @param {object} recipient; the sample of Recipient;
    */
@@ -84,7 +84,7 @@ function () {
 
     _classCallCheck(this, _class2);
 
-    this.scuArr = skuArr;
+    this.skuArr = skuArr;
     this.tax = tax;
     this.shipping = shippingCost;
     this.payer = payer; //will be added when the form is filled
@@ -99,8 +99,8 @@ function () {
     key: "getSubtotalSum",
     value: function getSubtotalSum() {
       var subtotal = 0;
-      this.scuArr.forEach(function (scu) {
-        subtotal += +scu.getSum();
+      this.skuArr.forEach(function (sku) {
+        subtotal += +sku.getSum();
       });
 
       if (subtotal) {
@@ -117,8 +117,8 @@ function () {
 
   }, {
     key: "getTax",
-    value: function getTax(subtotal) {
-      //let subtotal = this.getSubtotalSum();
+    value: function getTax() {
+      var subtotal = this.getSubtotalSum();
       return Math.round(subtotal / 100 * this.tax * 100) / 100;
     }
     /**@description it calculates the shipment value from the total sum of the chosen goods;
@@ -129,8 +129,9 @@ function () {
 
   }, {
     key: "getShipping",
-    value: function getShipping(subtotal) {
-      return Math.round((subtotal + +this.shipping) * 100) / 100;
+    value: function getShipping() {
+      var subtotal = this.getSubtotalSum();
+      return Math.round(subtotal / 100 * this.shipping * 100) / 100;
     }
     /**@description it calculates the shipment value from the total sum of the chosen goods;
      * The shipment is calculated as the share of the given sum;
@@ -140,8 +141,9 @@ function () {
 
   }, {
     key: "getTotalSum",
-    value: function getTotalSum(subtotal) {
-      var result = subtotal + this.getTax(subtotal) + this.getShipping(subtotal);
+    value: function getTotalSum() {
+      var subtotal = this.getSubtotalSum();
+      var result = subtotal + this.getTax() + this.getShipping();
       return Math.round(result * 100) / 100;
     }
     /**@description Getter/Setter combination:
@@ -175,18 +177,26 @@ function () {
 
 },{}],2:[function(require,module,exports){
 'use strict';
-/**@description the list of variables:
+/**@description the list of variables, which are collected for editing:
  * formName - the id-name of the form to work with;
  * storageChosen - the name of the localStorage of the chosen items;
  * storageArea - the name of the localStorage of the Area list, conditionally fetched;
  *               it will be used for the country search and selection in the form;
  * leftBarName - the name of the left bar with the form fields;
  * rightBarName - the name of the right bar with the cart data fields;
- * cartQntyName - the id-name of the DOM el, showing the number of the chosen items;
+ * cartQntyName - the id-name of the DOM El, showing the number of the chosen items;
+ * cartList - the id-name of the DOM Container, comprising the blocks of the goods;
+ * cartInfoTotal - the class-name of the DOM Wrapper, showing the total
+ *                 calculation values of the purchase;
+ * cartInfoTotalRow - the class-name of the row in 'cartInfoTotal' wrapper;
+ * cartItem - the DOM Container of the chosen goods-item;
+ * imageContainer - the class-name of the DOM Wrapper, containing img;
+ * cartItemInfo - the class-name of the DOM Wrapper, containing the Cart Item Info;
+ * cartItemSpec - the class-name of the DOM El, containing the details of the Cart Item Info;
  * form__block - the class-name of three form blocks for each Registration Stage;
  * stageWrapperName - the name of the DOM Container comprising 'stages' in <span>; *
  * tax - {number} percent share will be taken from the sum of the Order;
- * shippingCost - {number} the cost for the shipment in sum;
+ * shippingCost - {number} the cost for the shipment as the percent share from the sum;
  * innData - {object} initial data; in project will be replaced with the real data of the
  * chosen goods and the real fetching of the countries list;
  * */
@@ -197,6 +207,13 @@ var storageArea = 'area';
 var leftBarName = 'person-info';
 var rightBarName = 'cart-info';
 var cartQntyName = 'cart__qnty';
+var cartList = 'cart-list';
+var cartInfoTotal = 'cart-info__total';
+var cartInfoTotalRow = 'cart-info__total__row';
+var cartItem = 'cart-item';
+var imageContainer = 'image-container goods';
+var cartItemInfo = 'cart-item__info';
+var cartItemSpec = 'cart-item__spec';
 var formBlock = 'form__block';
 var stageWrapperName = 'form__stage-wrapper';
 var tax = 20;
@@ -214,6 +231,13 @@ var innData = require('./partial/initialData');
 
 var data = {
   formBlock: formBlock,
+  cartList: cartList,
+  cartInfoTotal: cartInfoTotal,
+  cartInfoTotalRow: cartInfoTotalRow,
+  cartItem: cartItem,
+  imageContainer: imageContainer,
+  cartItemInfo: cartItemInfo,
+  cartItemSpec: cartItemSpec,
   tax: tax,
   shippingCost: shippingCost,
   chosenArr: innData.chosenArr,
@@ -270,7 +294,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
   /**@description comprises the main operations for initiating the App:
    * - it creates the Sku samples from the array of the chosen goods;
-   * - it creates the Order Sample, which comprises all the purchase data and will
+   * - it creates the Order Sample, which comprises all the calculations and will
    * be finally ready for fetching to the server;
    * @param {object} data: the initial data;
    * **/
@@ -281,15 +305,25 @@ window.addEventListener("DOMContentLoaded", function () {
 
     var formBlockArr = data.form.querySelectorAll(".".concat(data.formBlock)); //three stage blocks of the form
 
+    var skuArr = data.init.createSku(data.chosenArr);
     var tax = data.tax,
         shippingCost = data.shippingCost;
-    var skuArr = data.init.createSku(data.chosenArr);
     var order;
 
     if (skuArr.length) {
       order = data.init.makeOrder(skuArr, tax, shippingCost);
-      log(order);
     }
+
+    var cartData = {
+      order: order,
+      cartList: data.cartList,
+      cartInfoTotal: data.cartInfoTotal,
+      cartItem: data.cartItem,
+      imageContainer: data.imageContainer,
+      cartItemInfo: data.cartItemInfo,
+      cartItemSpec: data.cartItemSpec
+    };
+    data.init.createCartDom(cartData);
   }
 }); ///dev
 
@@ -370,6 +404,96 @@ exports.createSku = function (chosenArr) {
 
 exports.makeOrder = function (skuArr, tax, shippingCost) {
   return new Order(skuArr, tax, shippingCost);
+};
+/**@description creates the DOM elements from the given 'cartData';
+ * @param {object} cartData; It contains the array of Sku Samples and styles class-names;
+ * */
+
+
+exports.createCartDom = function (cartData) {
+  var order = cartData.order;
+  var cartContainer = document.getElementById(cartData.cartList);
+  var cartInfoTotal = document.querySelector(".".concat(cartData.cartInfoTotal));
+  order.skuArr.forEach(function (sku) {
+    var imgSrc = sku.initProperty("photoUrl"),
+        itemName = sku.initProperty("itemName"),
+        itemSum = sku.getSum(),
+        itemDetail = sku.initProperty("itemDetail"),
+        itemQnty = sku.initProperty("itemQnty");
+    var item = document.createElement("div");
+    item.classList.add(cartData.cartItem);
+    var imgWrapper = document.createElement("div");
+    imgWrapper.setAttribute("class", cartData.imageContainer);
+    item.appendChild(imgWrapper);
+    var img = document.createElement("img");
+    img.setAttribute("src", imgSrc);
+    img.setAttribute("alt", "item image");
+    imgWrapper.appendChild(img);
+    var itemInfo = document.createElement("div");
+    itemInfo.classList.add(cartData.cartItemInfo);
+    item.appendChild(itemInfo);
+    var itemInfoMain = document.createElement("div");
+    itemInfoMain.setAttribute("class", "flex-box between");
+    itemInfo.appendChild(itemInfoMain);
+    var spanName = document.createElement("span");
+    spanName.setAttribute("data-cart", "itemName");
+    spanName.textContent = itemName;
+    itemInfoMain.appendChild(spanName);
+    var spanSum = document.createElement("span");
+    spanSum.setAttribute("data-cart", "itemSum");
+    spanSum.textContent = "$" + itemSum;
+    itemInfoMain.appendChild(spanSum);
+    var itemInfoSpec = document.createElement("div");
+    itemInfoSpec.classList.add(cartData.cartItemSpec);
+    itemInfo.appendChild(itemInfoSpec);
+    var spanDetail = document.createElement("span");
+    spanDetail.setAttribute("data-cart", "itemDetail");
+    spanDetail.textContent = itemDetail;
+    itemInfoSpec.appendChild(spanDetail);
+    var span = document.createElement("span");
+    span.textContent = "Quantity:";
+    itemInfoSpec.appendChild(span);
+    var spanQnty = document.createElement("span");
+    spanQnty.setAttribute("data-cart", "itemQnty");
+    spanQnty.textContent = itemQnty;
+    span.appendChild(spanQnty);
+    cartContainer.appendChild(item);
+    cartContainer.appendChild(document.createElement("hr"));
+  });
+
+  if (cartInfoTotal) {
+    var spanArr = cartInfoTotal.querySelectorAll("span");
+    spanArr.forEach(function (item) {
+      var data = item.dataset.cart;
+
+      if (data) {
+        var _cartData = {
+          "subTotal": function subTotal() {
+            item.textContent = "$" + order.getSubtotalSum().toFixed(2);
+          },
+
+          /**@description getting cost for shipping. If 0 than to show "free";
+           * */
+          "shippingCost": function shippingCost() {
+            var result = order.getShipping();
+            item.textContent = result ? "$" + result.toFixed(2) : 'free';
+          },
+          "taxCost": function taxCost() {
+            item.textContent = "$" + order.getTax().toFixed(2);
+          },
+          "totalPrice": function totalPrice() {
+            item.textContent = "$" + order.getTotalSum().toFixed(2);
+          }
+        };
+
+        if (data in _cartData) {
+          _cartData[data]();
+        }
+      }
+    });
+  } else {
+    throw new Error("class ".concat(cartData.cartInfoTotal, " not found in DOM"));
+  }
 }; ///FUNCTIONS
 
 /**@description:

@@ -1,17 +1,25 @@
 'use strict';
 
-/**@description the list of variables:
+/**@description the list of variables, which are collected for editing:
  * formName - the id-name of the form to work with;
  * storageChosen - the name of the localStorage of the chosen items;
  * storageArea - the name of the localStorage of the Area list, conditionally fetched;
  *               it will be used for the country search and selection in the form;
  * leftBarName - the name of the left bar with the form fields;
  * rightBarName - the name of the right bar with the cart data fields;
- * cartQntyName - the id-name of the DOM el, showing the number of the chosen items;
+ * cartQntyName - the id-name of the DOM El, showing the number of the chosen items;
+ * cartList - the id-name of the DOM Container, comprising the blocks of the goods;
+ * cartInfoTotal - the class-name of the DOM Wrapper, showing the total
+ *                 calculation values of the purchase;
+ * cartInfoTotalRow - the class-name of the row in 'cartInfoTotal' wrapper;
+ * cartItem - the DOM Container of the chosen goods-item;
+ * imageContainer - the class-name of the DOM Wrapper, containing img;
+ * cartItemInfo - the class-name of the DOM Wrapper, containing the Cart Item Info;
+ * cartItemSpec - the class-name of the DOM El, containing the details of the Cart Item Info;
  * form__block - the class-name of three form blocks for each Registration Stage;
  * stageWrapperName - the name of the DOM Container comprising 'stages' in <span>; *
  * tax - {number} percent share will be taken from the sum of the Order;
- * shippingCost - {number} the cost for the shipment in sum;
+ * shippingCost - {number} the cost for the shipment as the percent share from the sum;
  * innData - {object} initial data; in project will be replaced with the real data of the
  * chosen goods and the real fetching of the countries list;
  * */
@@ -21,6 +29,13 @@ const storageArea = 'area';
 const leftBarName = 'person-info';
 const rightBarName = 'cart-info';
 const cartQntyName = 'cart__qnty';
+const cartList = 'cart-list';
+const cartInfoTotal = 'cart-info__total';
+const cartInfoTotalRow = 'cart-info__total__row';
+const cartItem = 'cart-item';
+const imageContainer = 'image-container goods';
+const cartItemInfo = 'cart-item__info';
+const cartItemSpec = 'cart-item__spec';
 const formBlock = 'form__block';
 const stageWrapperName = 'form__stage-wrapper';
 const tax = 20;
@@ -37,6 +52,13 @@ const innData = require('./partial/initialData');
  * */
 const data = {
     formBlock,
+    cartList,
+    cartInfoTotal,
+    cartInfoTotalRow,
+    cartItem,
+    imageContainer,
+    cartItemInfo,
+    cartItemSpec,
     tax,
     shippingCost,
     chosenArr: innData.chosenArr,
@@ -100,21 +122,33 @@ window.addEventListener("DOMContentLoaded", () => {
     ///FUNCTIONS
     /**@description comprises the main operations for initiating the App:
      * - it creates the Sku samples from the array of the chosen goods;
-     * - it creates the Order Sample, which comprises all the purchase data and will
+     * - it creates the Order Sample, which comprises all the calculations and will
      * be finally ready for fetching to the server;
      * @param {object} data: the initial data;
      * **/
     function initForm( data ) {
         const stageArr = data.stageWrapper.querySelectorAll("span"); //there are three stages (0, 1, 2)
         const formBlockArr = data.form.querySelectorAll(`.${data.formBlock}`); //three stage blocks of the form
-        const { tax, shippingCost } = data;
+
         const skuArr = data.init.createSku(data.chosenArr);
+        const { tax, shippingCost } = data;
         let order;
         if (skuArr.length) {
             order = data.init.makeOrder(skuArr, tax, shippingCost);
-
-            log(order);
         }
+        const cartData = {
+            order,
+            cartList: data.cartList,
+            cartInfoTotal: data.cartInfoTotal,
+            cartItem: data.cartItem,
+            imageContainer: data.imageContainer,
+            cartItemInfo: data.cartItemInfo,
+            cartItemSpec: data.cartItemSpec
+        };
+
+
+        data.init.createCartDom( cartData );
+
     }
 });
 

@@ -49,12 +49,12 @@ exports.Order = class {
     /**constructor
      * @param {array} skuArr: Array of Sku samples;
      * @param {number} tax: taxes as the share, percentage in {number};
-     * @param {number} shippingCost: shipping cost;
+     * @param {number} shippingCost: cost as the share, percentage in {number};
      * @param {object} payer;  the sample of Payer;
      * @param {object} recipient; the sample of Recipient;
      */
     constructor(skuArr, tax=0, shippingCost=0, payer=null, recipient=null) {
-        this.scuArr = skuArr;
+        this.skuArr = skuArr;
         this.tax = tax;
         this.shipping = shippingCost;
         this.payer = payer; //will be added when the form is filled
@@ -65,8 +65,8 @@ exports.Order = class {
      * */
     getSubtotalSum() {
         let subtotal = 0;
-        this.scuArr.forEach(scu => {
-            subtotal += +scu.getSum();
+        this.skuArr.forEach(sku => {
+            subtotal += +sku.getSum();
         });
 
         if (subtotal) {
@@ -82,8 +82,8 @@ exports.Order = class {
      * @param {number} subtotal;  subtotal sum
      * @return {number};
      * */
-    getTax(subtotal) {
-        //let subtotal = this.getSubtotalSum();
+    getTax() {
+        let subtotal = this.getSubtotalSum();
         return Math.round(((subtotal / 100) * this.tax) * 100) / 100;
     }
 
@@ -92,8 +92,9 @@ exports.Order = class {
      * @param {number} subtotal; subtotal sum
      * @return {number};
      * */
-    getShipping(subtotal) {
-        return Math.round((subtotal + +this.shipping) * 100) / 100;
+    getShipping() {
+        let subtotal = this.getSubtotalSum();
+        return Math.round(((subtotal / 100) * this.shipping) * 100) / 100;
     }
 
     /**@description it calculates the shipment value from the total sum of the chosen goods;
@@ -101,8 +102,9 @@ exports.Order = class {
      * @param {number} subtotal;
      * @return {number};
      * */
-    getTotalSum(subtotal) {
-        let result = subtotal + this.getTax(subtotal) + this.getShipping(subtotal);
+    getTotalSum() {
+        let subtotal = this.getSubtotalSum();
+        let result = subtotal + this.getTax() + this.getShipping();
         return Math.round(result * 100) / 100;
     }
 

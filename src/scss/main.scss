@@ -37,7 +37,16 @@ h3 {
 }
 
 .image-container {
+  display: inline-block;
   @extend %image-container;
+
+  &.goods {
+    width: 90px;
+    height: 90px;
+    padding: 1px; //for making border-radius, when inner image is 100% of width/height
+    border: 1px solid $color-grey-light;
+    border-radius: 5px;
+  }
 }
 
 header {
