@@ -1,7 +1,7 @@
 'use strict';
 
 //imports
-const { Sku } = require('../classes');
+const { Sku, Order } = require('../classes');
 
 /**@description:
  * It checks for the localStorage to exist, then:
@@ -43,11 +43,25 @@ exports.equalHeights = ( colsArr ) => {
     colsArr.forEach(col => col.style.height = highestCal + "px");
 };
 
-/**@description
+/**@description creates the array of Sku Samples from the array of the chosen goods;
+ * @param {array} chosenArr; The array of the chosen goods;
+ * @return {array} of Sku Samples;
  * */
-exports.createCart = () => {
-
+exports.createSku = ( chosenArr ) => {
+    return chosenArr.map(sku => new Sku(sku));
 };
+
+/**@description creates a new Order Sample with the data on the chosen goods;
+ * @param {array} skuArr; The array of Sku Samples with the data on the chosen goods;
+ * @param {number} tax;
+ * @param {number} shippingCost;
+ * @return {object} new Order Sample;
+ * */
+exports.makeOrder = (skuArr, tax, shippingCost) => {
+    return new Order(skuArr, tax, shippingCost);
+};
+
+///FUNCTIONS
 
 /**@description:
  * It create the localStorage with the data and the creation Date;
