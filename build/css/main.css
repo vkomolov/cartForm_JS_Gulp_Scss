@@ -152,8 +152,8 @@ main .cart-info.ready:after {
   height: 100%; }
 
 * {
-  -webkit-transition: all .3s ease-in-out;
-  transition: all .3s ease-in-out; }
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out; }
 
 body {
   background-color: #e6e9f0;
@@ -296,14 +296,6 @@ main {
       align-items: center;
       padding: 0 15px;
       margin-bottom: 30px; }
-      main .cart-info__heading .order-edit {
-        display: inline-block;
-        border-bottom: 2px solid gainsboro; }
-        main .cart-info__heading .order-edit:hover {
-          color: #7a3fa8;
-          -webkit-animation: popup .4s ease infinite;
-          animation: popup .4s ease infinite;
-          cursor: pointer; }
     main .cart-info__total {
       padding: 25px 15px 70px; }
       main .cart-info__total__row {
@@ -408,6 +400,16 @@ main {
       text-decoration: underline; }
     #order-form .form__block .card-date-wrapper div:not(:first-of-type) {
       margin-left: 50px; }
+
+#order-edit {
+  display: inline-block;
+  border-bottom: 2px solid gainsboro; }
+  #order-edit:hover {
+    color: #7a3fa8;
+    border-bottom-color: #7a3fa8;
+    -webkit-transform: translateX(-5px);
+    transform: translateX(-5px);
+    cursor: pointer; }
 
 #form__stage-wrapper {
   display: -webkit-box;
@@ -638,7 +640,8 @@ main {
 
 .thankU-wrapper {
   padding: 90px;
-  color: #333333; }
+  color: #333333;
+  display: none; }
   .thankU-wrapper p {
     font-size: 30px;
     font-weight: 400;
@@ -667,6 +670,11 @@ main {
 
 #shipment-date {
   font-weight: 800; }
+
+footer {
+  padding: 20px 0;
+  background-color: white;
+  border-top: 2px solid #da59c1; }
 
 .marked {
   background-color: #fefdef; }

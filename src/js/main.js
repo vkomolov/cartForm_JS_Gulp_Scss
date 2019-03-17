@@ -121,9 +121,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
     ///FUNCTIONS
     /**@description comprises the main operations for initiating the App:
-     * - it creates the Sku samples from the array of the chosen goods;
-     * - it creates the Order Sample, which comprises all the calculations and will
-     * be finally ready for fetching to the server;
+     * - it runs 'createSku()' to create the Sku samples from the array of the chosen goods;
+     * - it runs 'makeOrder()' to create the Order Sample, which comprises all the
+     * calculations and will be finally ready for fetching to the server;
+     * - it runs 'createCartDom()' to create DOM elements and to show the chosen
+     * goods` details and calculation results;
+     * - it runs 'checkStage()' to check the stage of the form filling and to highlight
+     * the following DOM el in 'stageWrapper';
      * @param {object} data: the initial data;
      * **/
     function initForm( data ) {
@@ -132,10 +136,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const skuArr = data.init.createSku(data.chosenArr);
         const { tax, shippingCost } = data;
+
         let order;
         if (skuArr.length) {
             order = data.init.makeOrder(skuArr, tax, shippingCost);
+            log(order);
         }
+
         const cartData = {
             order,
             cartList: data.cartList,
@@ -145,10 +152,9 @@ window.addEventListener("DOMContentLoaded", () => {
             cartItemInfo: data.cartItemInfo,
             cartItemSpec: data.cartItemSpec
         };
-
-
         data.init.createCartDom( cartData );
 
+        data.init.listen(data.form);
     }
 });
 

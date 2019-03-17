@@ -5,7 +5,7 @@
 @import "./partial/variables";
 
 * {
-  transition: all .3s ease-in-out;
+  transition: all .2s ease-in-out;
 }
 
 body {
@@ -147,17 +147,6 @@ main {
 
       padding: 0 15px;
       margin-bottom: 30px;
-
-      .order-edit {
-        display: inline-block;
-        border-bottom: 2px solid $color-grey-light;
-
-        &:hover {
-          color: $color-violet-light;
-          animation: popup .4s ease infinite;
-          cursor: pointer;
-        }
-      }
     }
 
     &__total {
@@ -289,6 +278,18 @@ main {
         margin-left: 50px;
       }
     }
+  }
+}
+
+#order-edit {
+  display: inline-block;
+  border-bottom: 2px solid $color-grey-light;
+
+  &:hover {
+    color: $color-violet-light;
+    border-bottom-color: $color-violet-light;
+    transform: translateX(-5px);
+    cursor: pointer;
   }
 }
 
@@ -556,7 +557,7 @@ main {
 .thankU-wrapper {
   padding: 90px;
   color: $color-grey-dark;
-  //display: none;
+  display: none;
 
   p {
     @include init-font(30px, 400);
@@ -596,6 +597,12 @@ main {
 
 #shipment-date {
   font-weight: 800;
+}
+
+footer {
+  padding: 20px 0;
+  background-color: $color-white;
+  border-top: 2px solid $color-pink;
 }
 
 ///////////OPTION

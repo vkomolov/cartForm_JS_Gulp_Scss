@@ -293,9 +293,13 @@ window.addEventListener("DOMContentLoaded", function () {
   } ///FUNCTIONS
 
   /**@description comprises the main operations for initiating the App:
-   * - it creates the Sku samples from the array of the chosen goods;
-   * - it creates the Order Sample, which comprises all the calculations and will
-   * be finally ready for fetching to the server;
+   * - it runs 'createSku()' to create the Sku samples from the array of the chosen goods;
+   * - it runs 'makeOrder()' to create the Order Sample, which comprises all the
+   * calculations and will be finally ready for fetching to the server;
+   * - it runs 'createCartDom()' to create DOM elements and to show the chosen
+   * goods` details and calculation results;
+   * - it runs 'checkStage()' to check the stage of the form filling and to highlight
+   * the following DOM el in 'stageWrapper';
    * @param {object} data: the initial data;
    * **/
 
@@ -312,6 +316,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     if (skuArr.length) {
       order = data.init.makeOrder(skuArr, tax, shippingCost);
+      log(order);
     }
 
     var cartData = {
@@ -324,6 +329,7 @@ window.addEventListener("DOMContentLoaded", function () {
       cartItemSpec: data.cartItemSpec
     };
     data.init.createCartDom(cartData);
+    data.init.listen(data.form);
   }
 }); ///dev
 
@@ -405,7 +411,9 @@ exports.createSku = function (chosenArr) {
 exports.makeOrder = function (skuArr, tax, shippingCost) {
   return new Order(skuArr, tax, shippingCost);
 };
-/**@description creates the DOM elements from the given 'cartData';
+/**@description
+ * - creates the DOM elements from the given 'cartData';
+ * - calculates the values and shows them in the created DOM els;
  * @param {object} cartData; It contains the array of Sku Samples and styles class-names;
  * */
 
@@ -467,6 +475,8 @@ exports.createCartDom = function (cartData) {
       var data = item.dataset.cart;
 
       if (data) {
+        /**@description emitting 'switch case' with the object of funcs;
+         * */
         var _cartData = {
           "subTotal": function subTotal() {
             item.textContent = "$" + order.getSubtotalSum().toFixed(2);
@@ -494,6 +504,47 @@ exports.createCartDom = function (cartData) {
   } else {
     throw new Error("class ".concat(cartData.cartInfoTotal, " not found in DOM"));
   }
+};
+/**@description
+ * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
+ *
+ * */
+
+
+exports.listen = function (form) {
+  /**@description
+   * if during input the 'enter' key pressed, then the input is blur
+   * */
+  form.addEventListener("keydown", function (ev) {
+    var target = ev.target;
+
+    if (ev.keyCode === 13) {
+      target.blur();
+    }
+  }, true);
+  /**@description
+   * if target is focused, then to highlight the border of the Parent Element;
+   * */
+
+  form.addEventListener("focus", function (_ref) {
+    var target = _ref.target;
+
+    if (target.name !== "recipient-country" && target.name !== "billing-country") {
+      toggleParent(target);
+    }
+  }, true); //onfocus can be caught on bubbling up
+
+  /**@description
+   * if target is blur, then to highlight the border of the Parent Element;
+   * */
+
+  form.addEventListener("blur", function (_ref2) {
+    var target = _ref2.target;
+
+    if (target.name !== "recipient-country" && target.name !== "billing-country") {
+      toggleParent(target);
+    }
+  }, true);
 }; ///FUNCTIONS
 
 /**@description:
@@ -513,7 +564,24 @@ function setLocalStorage(name, data) {
     };
     localStorage.setItem(name, JSON.stringify(dataWithDate));
   }
-} ///dev
+}
+/**@description toggles the Parent element`s border;
+ * @param {object} target; DOM element, which has the Parent`s border to toggle;
+ * */
+
+
+function toggleParent(target) {
+  target.parentElement.classList.toggle("active");
+}
+/**@description to check for the stage of the form filling and to highlight the
+ * corresponding DOM element in the array of els;
+ * @param {array} stageArr; The array of DOM elements;
+ * @param {object} payer;  the sample of Payer;
+ * @param {object} recipient; the sample of Recipient;
+ * */
+
+
+function checkStage(stageArr, payer, recipient) {} ///dev
 
 
 function log(item) {

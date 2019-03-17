@@ -61,10 +61,11 @@ exports.makeOrder = (skuArr, tax, shippingCost) => {
     return new Order(skuArr, tax, shippingCost);
 };
 
-/**@description creates the DOM elements from the given 'cartData';
+/**@description
+ * - creates the DOM elements from the given 'cartData';
+ * - calculates the values and shows them in the created DOM els;
  * @param {object} cartData; It contains the array of Sku Samples and styles class-names;
  * */
-
 exports.createCartDom = ( cartData ) => {
     const { order } = cartData;
     let cartContainer = document.getElementById(cartData.cartList);
@@ -134,6 +135,8 @@ exports.createCartDom = ( cartData ) => {
         spanArr.forEach(item => {
             let data = item.dataset.cart;
             if (data) {
+                /**@description emitting 'switch case' with the object of funcs;
+                 * */
                 let cartData = {
                     "subTotal": () => {
                         item.textContent = "$" + order.getSubtotalSum().toFixed(2);
@@ -163,6 +166,41 @@ exports.createCartDom = ( cartData ) => {
     }
 };
 
+/**@description
+ * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
+ *
+ * */
+exports.listen = (form) => {
+    /**@description
+     * if during input the 'enter' key pressed, then the input is blur
+     * */
+    form.addEventListener("keydown", ( ev ) => {
+        let target = ev.target;
+        if (ev.keyCode === 13) {
+            target.blur();
+        }
+    }, true);
+
+    /**@description
+     * if target is focused, then to highlight the border of the Parent Element;
+     * */
+    form.addEventListener("focus", ({ target }) => {
+        if (target.name !== "recipient-country" && target.name !== "billing-country") {
+            toggleParent(target);
+        }
+    } ,true); //onfocus can be caught on bubbling up
+
+    /**@description
+     * if target is blur, then to highlight the border of the Parent Element;
+     * */
+    form.addEventListener("blur", ({ target }) => {
+        if (target.name !== "recipient-country" && target.name !== "billing-country") {
+            toggleParent(target);
+        }
+    } ,true);
+
+};
+
 ///FUNCTIONS
 
 /**@description:
@@ -180,6 +218,24 @@ function setLocalStorage(name, data)  {
         };
         localStorage.setItem(name, JSON.stringify(dataWithDate));
     }
+}
+
+/**@description toggles the Parent element`s border;
+ * @param {object} target; DOM element, which has the Parent`s border to toggle;
+ * */
+function toggleParent(target) {
+    target.parentElement.classList.toggle("active");
+}
+
+
+/**@description to check for the stage of the form filling and to highlight the
+ * corresponding DOM element in the array of els;
+ * @param {array} stageArr; The array of DOM elements;
+ * @param {object} payer;  the sample of Payer;
+ * @param {object} recipient; the sample of Recipient;
+ * */
+function checkStage(stageArr, payer, recipient) {
+
 }
 
 ///dev
