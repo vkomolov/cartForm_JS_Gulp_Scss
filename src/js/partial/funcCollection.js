@@ -38,6 +38,8 @@ exports.equalHeights = ( colsArr ) => {
     for (let i = 0; i < colsArr.length; i++) {
         if (colsArr[i].offsetHeight >= highestCal) {
             highestCal = colsArr[i].offsetHeight;
+
+            log(highestCal);
         }
     }
     colsArr.forEach(col => col.style.height = highestCal + "px");
@@ -62,107 +64,26 @@ exports.makeOrder = (skuArr, tax, shippingCost) => {
 };
 
 /**@description
- * - creates the DOM elements from the given 'cartData';
- * - calculates the values and shows them in the created DOM els;
- * @param {object} cartData; It contains the array of Sku Samples and styles class-names;
+ * - to remove the className 'active' from the array of nodes;
+ * - to highlight the corresponding 'span' in the array, adding class 'active';
+ * - to show the corresponding form block with the inputs, adding class 'active';
+ * By adding the class, the node becomes visible/highlighted;
+ * @param {number} stage; The stage of the form; Initially it is 0;
+ * @param {array} blocksArr; The array of the nodeLists to work with;
  * */
-exports.createCartDom = ( cartData ) => {
-    const { order } = cartData;
-    let cartContainer = document.getElementById(cartData.cartList);
-    let cartInfoTotal = document.querySelector(`.${cartData.cartInfoTotal}`);
-
-    order.skuArr.forEach(sku => {
-        let imgSrc = sku.initProperty("photoUrl"),
-        itemName = sku.initProperty("itemName"),
-        itemSum = sku.getSum(),
-        itemDetail = sku.initProperty("itemDetail"),
-        itemQnty = sku.initProperty("itemQnty");
-
-        let item = document.createElement("div");
-        item.classList.add(cartData.cartItem);
-
-        let imgWrapper = document.createElement("div");
-        imgWrapper.setAttribute("class", cartData.imageContainer);
-        item.appendChild(imgWrapper);
-
-        let img = document.createElement("img");
-        img.setAttribute("src", imgSrc);
-        img.setAttribute("alt", "item image");
-        imgWrapper.appendChild(img);
-
-        let itemInfo = document.createElement("div");
-        itemInfo.classList.add(cartData.cartItemInfo);
-        item.appendChild(itemInfo);
-
-        let itemInfoMain = document.createElement("div");
-        itemInfoMain.setAttribute("class", "flex-box between");
-        itemInfo.appendChild(itemInfoMain);
-
-        let spanName = document.createElement("span");
-        spanName.setAttribute("data-cart", "itemName");
-        spanName.textContent = itemName;
-        itemInfoMain.appendChild(spanName);
-
-        let spanSum = document.createElement("span");
-        spanSum.setAttribute("data-cart", "itemSum");
-        spanSum.textContent = "$" + itemSum;
-        itemInfoMain.appendChild(spanSum);
-
-        let itemInfoSpec = document.createElement("div");
-        itemInfoSpec.classList.add(cartData.cartItemSpec);
-        itemInfo.appendChild(itemInfoSpec);
-
-        let spanDetail = document.createElement("span");
-        spanDetail.setAttribute("data-cart", "itemDetail");
-        spanDetail.textContent = itemDetail;
-        itemInfoSpec.appendChild(spanDetail);
-
-        let span = document.createElement("span");
-        span.textContent = "Quantity:";
-        itemInfoSpec.appendChild(span);
-
-        let spanQnty = document.createElement("span");
-        spanQnty.setAttribute("data-cart", "itemQnty");
-        spanQnty.textContent = itemQnty;
-        span.appendChild(spanQnty);
-
-        cartContainer.appendChild(item);
-        cartContainer.appendChild(document.createElement("hr"));
-    });
-
-    if (cartInfoTotal) {
-        let spanArr = cartInfoTotal.querySelectorAll("span");
-        spanArr.forEach(item => {
-            let data = item.dataset.cart;
-            if (data) {
-                /**@description emitting 'switch case' with the object of funcs;
-                 * */
-                let cartData = {
-                    "subTotal": () => {
-                        item.textContent = "$" + order.getSubtotalSum().toFixed(2);
-                    },
-                    /**@description getting cost for shipping. If 0 than to show "free";
-                     * */
-                    "shippingCost": () => {
-                        let result = order.getShipping();
-                        item.textContent = result
-                            ? "$" + result.toFixed(2)
-                            : 'free';
-                    },
-                    "taxCost": () => {
-                        item.textContent = "$" + order.getTax().toFixed(2);
-                    },
-                    "totalPrice": () => {
-                        item.textContent = "$" + order.getTotalSum().toFixed(2);
-                    }
-                };
-                if (data in cartData) {
-                    cartData[data]();
-                }
+exports.runStage = ( stage, blocksArr ) => {
+    const className = 'active';
+    if (blocksArr.length) {
+        blocksArr.forEach(nodeList => {
+            if (nodeList.length) {
+                removeClassIn( nodeList, className );
+                nodeList[stage].classList.add(className);
+            } else {
+                throw new Error("the nodeList is empty");
             }
         });
     } else {
-        throw new Error(`class ${cartData.cartInfoTotal} not found in DOM`);
+        throw new Error("the array of nodeLists given in arguments is empty");
     }
 };
 
@@ -188,7 +109,7 @@ exports.listen = (form) => {
         if (target.name !== "recipient-country" && target.name !== "billing-country") {
             toggleParent(target);
         }
-    } ,true); //onfocus can be caught on bubbling up
+    } ,true);
 
     /**@description
      * if target is blur, then to highlight the border of the Parent Element;
@@ -199,7 +120,26 @@ exports.listen = (form) => {
         }
     } ,true);
 
+    /**@description
+     * if target is blur, then to highlight the border of the Parent Element;
+     * */
+    form.addEventListener("click", ({ target }) => {
+        if (target.closest("div").dataset.type === "continue") {
+
+        }
+    });
+
 };
+
+/**@description it cleans the classname in the nodeList of DOM elements;
+ * @param {array} nodeList of the elements for removing the classname
+ * @param {string} className to be removed;
+ **/
+function removeClassIn( nodeList, className ) {
+    nodeList.forEach(el => {
+        el.classList.remove(className);
+    });
+}
 
 ///FUNCTIONS
 
@@ -227,14 +167,21 @@ function toggleParent(target) {
     target.parentElement.classList.toggle("active");
 }
 
+/**@description: checks the array of DOM elements if they contain the css .class
+ * @return: {number} array index of the DOM element, which contains the .class
+ * @return: {boolean} false if no DOM elements with the .class in need
+ **/
+function findClassIn(array, className) {
+    let res = null;
+    array.forEach((item, index) => {
+        if (item.classList.contains(className)) {
+            res = index;
+        }
+    });
+    return res;
+}
 
-/**@description to check for the stage of the form filling and to highlight the
- * corresponding DOM element in the array of els;
- * @param {array} stageArr; The array of DOM elements;
- * @param {object} payer;  the sample of Payer;
- * @param {object} recipient; the sample of Recipient;
- * */
-function checkStage(stageArr, payer, recipient) {
+function cleanActiveIn() {
 
 }
 

@@ -83,6 +83,7 @@ header {
 
   .top-wrapper {
     padding: 0 15px;
+    padding-right: 30px;
   }
 }
 
@@ -304,7 +305,8 @@ main {
     }
 
     &.active {
-      color: $color-violet;
+      color: $color-pink;
+      font-weight: 700;
     }
   }
 

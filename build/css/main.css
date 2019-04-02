@@ -220,7 +220,8 @@ header {
     width: 40px;
     height: 40px; }
   header .top-wrapper {
-    padding: 0 15px; }
+    padding: 0 15px;
+    padding-right: 30px; }
 
 #cart__qnty {
   display: block;
@@ -430,7 +431,8 @@ main {
     #form__stage-wrapper span:first-of-type {
       margin-left: 0; }
     #form__stage-wrapper span.active {
-      color: #5a1094; }
+      color: #da59c1;
+      font-weight: 700; }
   #form__stage-wrapper img {
     width: 40px;
     height: 40px; }

@@ -1,5 +1,14 @@
 'use strict';
 
+/**@description each property name equals the inputs` name of the form;
+ * The input will be operated with the corresponding properties:
+ * - error: in case of not valid input value the input will show the correct example
+ * of the input;
+ * - type: the type of the input will initiate the corresponding method to validate the
+ * input value;
+ * - stage: when submitting the form to switch to the next form stage, the inputs of
+ * the corresponding stage will be checked to be filled;
+ * */
 module.exports = {
     "recipient-full-name": {error: "Jonathan Smith", type: "spacedString", stage: 0},
     "recipient-phone-number": {error: "+7(987)123-77-88", type: "phone", stage: 0},

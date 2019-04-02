@@ -177,159 +177,91 @@ function () {
 
 },{}],2:[function(require,module,exports){
 'use strict';
-/**@description the list of variables, which are collected for editing:
- * formName - the id-name of the form to work with;
- * storageChosen - the name of the localStorage of the chosen items;
- * storageArea - the name of the localStorage of the Area list, conditionally fetched;
- *               it will be used for the country search and selection in the form;
- * leftBarName - the name of the left bar with the form fields;
- * rightBarName - the name of the right bar with the cart data fields;
- * cartQntyName - the id-name of the DOM El, showing the number of the chosen items;
- * cartList - the id-name of the DOM Container, comprising the blocks of the goods;
- * cartInfoTotal - the class-name of the DOM Wrapper, showing the total
- *                 calculation values of the purchase;
- * cartInfoTotalRow - the class-name of the row in 'cartInfoTotal' wrapper;
- * cartItem - the DOM Container of the chosen goods-item;
- * imageContainer - the class-name of the DOM Wrapper, containing img;
- * cartItemInfo - the class-name of the DOM Wrapper, containing the Cart Item Info;
- * cartItemSpec - the class-name of the DOM El, containing the details of the Cart Item Info;
- * form__block - the class-name of three form blocks for each Registration Stage;
- * stageWrapperName - the name of the DOM Container comprising 'stages' in <span>; *
- * tax - {number} percent share will be taken from the sum of the Order;
- * shippingCost - {number} the cost for the shipment as the percent share from the sum;
- * innData - {object} initial data; in project will be replaced with the real data of the
- * chosen goods and the real fetching of the countries list;
- * */
-
-var formName = 'order-form';
-var storageChosen = 'chosen';
-var storageArea = 'area';
-var leftBarName = 'person-info';
-var rightBarName = 'cart-info';
-var cartQntyName = 'cart__qnty';
-var cartList = 'cart-list';
-var cartInfoTotal = 'cart-info__total';
-var cartInfoTotalRow = 'cart-info__total__row';
-var cartItem = 'cart-item';
-var imageContainer = 'image-container goods';
-var cartItemInfo = 'cart-item__info';
-var cartItemSpec = 'cart-item__spec';
-var formBlock = 'form__block';
-var stageWrapperName = 'form__stage-wrapper';
-var tax = 20;
-var shippingCost = 30;
-
-var innData = require('./partial/initialData');
-/**@description the initial data;
- * @property {array} chosenArr; initial data of the chosen items;
- * @property {array} areaArr; conditionally fetched list of countries;
- * @property {object} init; comprises the inner funcs;
- * @property {object} inputNamesObj; comprises the form inputs` data;
- * @property {object} regExpObj; regExp data for validating the form inputs;
- * */
-
-
-var data = {
-  formBlock: formBlock,
-  cartList: cartList,
-  cartInfoTotal: cartInfoTotal,
-  cartInfoTotalRow: cartInfoTotalRow,
-  cartItem: cartItem,
-  imageContainer: imageContainer,
-  cartItemInfo: cartItemInfo,
-  cartItemSpec: cartItemSpec,
-  tax: tax,
-  shippingCost: shippingCost,
-  chosenArr: innData.chosenArr,
-  areaArr: innData.areaArr,
-  init: require('./partial/funcCollection'),
-  inputNamesObj: require('./partial/inputsData'),
-  regExpObj: require('./partial/regExpData')
-};
-/**@description checking for the initial localStorage and the Creation Date;
- * - If localStorage doesn`t exist or the Creation Date is longer than 1 day, then
+/**@description
+ * - checking for the initial localStorage and the Creation Date;
+ * If localStorage doesn`t exist or the Creation Date is longer than 1 day, then
  * to create the localStorage with the given data, creating the Creation Date;
  * In real project the localStorage with the chosen goods will be already set;
  * - To check for the quantity of the chosen goods in the localStorage and to show this
  * quantity in the header DOM element with id name "cart__qnty"; In real project this
  * indicator should be initiated in the <header />, which is common for all pages,
  * including this form page;
- * - If the form by id-name exists, then to equal heights of the left and right bars
- * and to init App;
+ * - If the form by id-name exists, then to equal heights of the left and right bars;
+ * - to init App with the prepared args;
  * */
 
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 window.addEventListener("DOMContentLoaded", function () {
-  if (data.init.checkInStorage(storageChosen, data.chosenArr) && data.init.checkInStorage(storageArea, data.areaArr) && document.forms[formName]) {
-    data.form = document.getElementById(formName);
-    data.headerCartQnty = document.getElementById(cartQntyName);
-    data.stageWrapper = document.getElementById(stageWrapperName);
-    data.localStore = JSON.parse(localStorage.getItem(storageChosen));
+  var tax = 20;
+  var shippingCost = 30;
+
+  var innData = require('./partial/initialData');
+
+  var cssVars = require('./partial/cssVars');
+
+  var initForm = require('./partial/initForm');
+  /**@description the initial data, will be passed as the arguments;
+   * @property {array} chosenArr; initial data of the chosen items;
+   * @property {array} areaArr; conditionally fetched list of countries;
+   * @property {object} init; comprises the inner funcs;
+   * @property {object} inputNamesObj; comprises the form inputs` data;
+   * @property {object} regExpObj; regExp data for validating the form inputs;
+   * */
+
+
+  var data = _objectSpread({}, cssVars, {
+    tax: tax,
+    shippingCost: shippingCost,
+    stage: 0,
+    chosenArr: innData.chosenArr,
+    areaArr: innData.areaArr,
+    init: require('./partial/funcCollection'),
+    inputNamesObj: require('./partial/inputsData'),
+    regExpObj: require('./partial/regExpData')
+  });
+  /**@description checks for the localStorage or creates it;
+   * @param {string} data.storageChosen; The name of the localStorage;
+   * @param {array} data.chosenArr; The data to store in the localStorage;
+   * */
+
+
+  if (data.init.checkInStorage(data.storageChosen, data.chosenArr) && data.init.checkInStorage(data.storageArea, data.areaArr) && document.forms[data.formName]) {
+    data.form = document.getElementById(data.formName);
+    data.headerCartQnty = document.getElementById(data.cartQntyName);
+    data.stageWrapper = document.getElementById(data.stageWrapperName);
+    data.localStore = JSON.parse(localStorage.getItem(data.storageChosen));
     /**@description to get the quantity of the chosen goods from the localStorage;
-     * To show the quantity in the header at the el with '#cart__qnty';
+     * To show the quantity in the header with the el '#cart__qnty';
      * */
 
     if (data.headerCartQnty) {
       data.headerCartQnty.textContent = data.localStore.data.length;
     } else {
-      throw new Error("no id ".concat(cartQntyName, " found"));
+      throw new Error("no id ".concat(data.cartQntyName, " found"));
     }
-    /**@description the collection of:
+    /**@description the collection is used for equalizing the heights of given Els:
      * - 'person-info', left column, which contains the form fields;
      * - 'cart-info', right column, which contains the cart data fields;
      * */
 
 
-    var colsArr = [document.querySelector(".".concat(leftBarName)), document.querySelector(".".concat(rightBarName))];
-    /**@description making heights of the columns in the form equal by height;
+    var colsArr = [document.querySelector(".".concat(data.leftBarName)), document.querySelector(".".concat(data.rightBarName))];
+    log(colsArr);
+    /**@description making heights of the columns in the form to be equal by height;
+     * @param {array} colsArr; The array of columns to equalize in height;
      * */
 
     data.init.equalHeights(colsArr);
-    /**@description initiating the form;
+    /**@description initiating the form with the prepared data;
+     * @param {object} data; initial data;
      * */
 
     initForm(data);
   } else {
     throw new Error("form #'order-form' not found or localStorage init error");
-  } ///FUNCTIONS
-
-  /**@description comprises the main operations for initiating the App:
-   * - it runs 'createSku()' to create the Sku samples from the array of the chosen goods;
-   * - it runs 'makeOrder()' to create the Order Sample, which comprises all the
-   * calculations and will be finally ready for fetching to the server;
-   * - it runs 'createCartDom()' to create DOM elements and to show the chosen
-   * goods` details and calculation results;
-   * - it runs 'checkStage()' to check the stage of the form filling and to highlight
-   * the following DOM el in 'stageWrapper';
-   * @param {object} data: the initial data;
-   * **/
-
-
-  function initForm(data) {
-    var stageArr = data.stageWrapper.querySelectorAll("span"); //there are three stages (0, 1, 2)
-
-    var formBlockArr = data.form.querySelectorAll(".".concat(data.formBlock)); //three stage blocks of the form
-
-    var skuArr = data.init.createSku(data.chosenArr);
-    var tax = data.tax,
-        shippingCost = data.shippingCost;
-    var order;
-
-    if (skuArr.length) {
-      order = data.init.makeOrder(skuArr, tax, shippingCost);
-      log(order);
-    }
-
-    var cartData = {
-      order: order,
-      cartList: data.cartList,
-      cartInfoTotal: data.cartInfoTotal,
-      cartItem: data.cartItem,
-      imageContainer: data.imageContainer,
-      cartItemInfo: data.cartItemInfo,
-      cartItemSpec: data.cartItemSpec
-    };
-    data.init.createCartDom(cartData);
-    data.init.listen(data.form);
   }
 }); ///dev
 
@@ -337,88 +269,15 @@ function log(item) {
   console.log(item);
 }
 
-},{"./partial/funcCollection":3,"./partial/initialData":4,"./partial/inputsData":5,"./partial/regExpData":6}],3:[function(require,module,exports){
-'use strict'; //imports
-
-var _require = require('../classes'),
-    Sku = _require.Sku,
-    Order = _require.Order;
-/**@description:
- * It checks for the localStorage to exist, then:
- * - if false, it creates the object with the Creation Date and the given Data,
- * then stores it in the localStorage;
- * - if true, it checks for the Creation Date of the stored Object. If the time
- * difference is more, than 1 day (instance), then it creates new localStorage;
- * @param {string} name; The name of the localStorage;
- * @param {array} arr; {array} of objects;
- * **/
-
-
-exports.checkInStorage = function (name, arr) {
-  var storage = localStorage.getItem(name);
-  var innData;
-
-  if (storage) {
-    innData = JSON.parse(storage);
-    var creationDate = new Date(innData.creationDate);
-    var currentDate = new Date();
-
-    if ((currentDate - creationDate) / 1000 / 60 / 60 / 24 < 1) {
-      return true;
-    }
-  }
-
-  setLocalStorage(name, arr);
-  return !!localStorage.getItem(name);
-};
-/**@description equalizes the heights of the DOM elements.
- * @param {array} colsArr; the array of the DOM elements to equalize;
- * */
-
-
-exports.equalHeights = function (colsArr) {
-  var highestCal = 0;
-
-  for (var i = 0; i < colsArr.length; i++) {
-    if (colsArr[i].offsetHeight >= highestCal) {
-      highestCal = colsArr[i].offsetHeight;
-    }
-  }
-
-  colsArr.forEach(function (col) {
-    return col.style.height = highestCal + "px";
-  });
-};
-/**@description creates the array of Sku Samples from the array of the chosen goods;
- * @param {array} chosenArr; The array of the chosen goods;
- * @return {array} of Sku Samples;
- * */
-
-
-exports.createSku = function (chosenArr) {
-  return chosenArr.map(function (sku) {
-    return new Sku(sku);
-  });
-};
-/**@description creates a new Order Sample with the data on the chosen goods;
- * @param {array} skuArr; The array of Sku Samples with the data on the chosen goods;
- * @param {number} tax;
- * @param {number} shippingCost;
- * @return {object} new Order Sample;
- * */
-
-
-exports.makeOrder = function (skuArr, tax, shippingCost) {
-  return new Order(skuArr, tax, shippingCost);
-};
+},{"./partial/cssVars":4,"./partial/funcCollection":5,"./partial/initForm":6,"./partial/initialData":7,"./partial/inputsData":8,"./partial/regExpData":9}],3:[function(require,module,exports){
+'use strict';
 /**@description
  * - creates the DOM elements from the given 'cartData';
  * - calculates the values and shows them in the created DOM els;
- * @param {object} cartData; It contains the array of Sku Samples and styles class-names;
+ * @param {object} cartData; It contains the array of Sku Samples and CSS class-names;
  * */
 
-
-exports.createCartDom = function (cartData) {
+module.exports = function (cartData) {
   var order = cartData.order;
   var cartContainer = document.getElementById(cartData.cartList);
   var cartInfoTotal = document.querySelector(".".concat(cartData.cartInfoTotal));
@@ -475,7 +334,7 @@ exports.createCartDom = function (cartData) {
       var data = item.dataset.cart;
 
       if (data) {
-        /**@description emitting 'switch case' with the object of funcs;
+        /**@description emitting 'switch case' method by the object of funcs;
          * */
         var _cartData = {
           "subTotal": function subTotal() {
@@ -505,6 +364,152 @@ exports.createCartDom = function (cartData) {
     throw new Error("class ".concat(cartData.cartInfoTotal, " not found in DOM"));
   }
 };
+
+},{}],4:[function(require,module,exports){
+'use strict';
+/**@description the list of style names, used in DOM:
+ * formName - the id-name of the form to work with;
+ * storageChosen - the name of the localStorage of the chosen items;
+ * storageArea - the name of the localStorage of the Area list, (conditionally) fetched;
+ *               it will be used for the country search and selection in the form;
+ * leftBarName - the name of the left bar with the form fields;
+ * rightBarName - the name of the right bar with the cart data fields;
+ * cartQntyName - the id-name of the DOM El, showing the number of the chosen items;
+ * cartList - the id-name of the DOM Container, comprising the blocks of the goods;
+ * cartInfoTotal - the class-name of the DOM Wrapper, showing the total
+ *                 calculation values of the purchase;
+ * cartInfoTotalRow - the class-name of the row in 'cartInfoTotal' wrapper;
+ * cartItem - the DOM Container of the chosen goods-item;
+ * imageContainer - the class-name of the DOM Wrapper, containing img;
+ * cartItemInfo - the class-name of the DOM Wrapper, containing the Cart Item Info;
+ * cartItemSpec - the class-name of the DOM El, containing the details of the Cart Item Info;
+ * form__block - the class-name of three form blocks for each Registration Stage;
+ * stageWrapperName - the name of the DOM Container comprising 'stages' in <span>; *
+ * tax - {number} percent share will be taken from the sum of the Order;
+ * shippingCost - {number} the cost for the shipment as the percent share from the sum;
+ * innData - {object} initial data; in project will be replaced with the real data of the
+ * chosen goods and the real fetching of the countries list;
+ * */
+
+module.exports = {
+  formName: 'order-form',
+  storageChosen: 'chosen',
+  storageArea: 'area',
+  leftBarName: 'person-info',
+  rightBarName: 'cart-info',
+  cartQntyName: 'cart__qnty',
+  cartList: 'cart-list',
+  cartInfoTotal: 'cart-info__total',
+  cartInfoTotalRow: 'cart-info__total__row',
+  cartItem: 'cart-item',
+  imageContainer: 'image-container goods',
+  cartItemInfo: 'cart-item__info',
+  cartItemSpec: 'cart-item__spec',
+  formBlock: 'form__block',
+  stageWrapperName: 'form__stage-wrapper'
+};
+
+},{}],5:[function(require,module,exports){
+'use strict'; //imports
+
+var _require = require('../classes'),
+    Sku = _require.Sku,
+    Order = _require.Order;
+/**@description:
+ * It checks for the localStorage to exist, then:
+ * - if false, it creates the object with the Creation Date and the given Data,
+ * then stores it in the localStorage;
+ * - if true, it checks for the Creation Date of the stored Object. If the time
+ * difference is more, than 1 day (instance), then it creates new localStorage;
+ * @param {string} name; The name of the localStorage;
+ * @param {array} arr; {array} of objects;
+ * **/
+
+
+exports.checkInStorage = function (name, arr) {
+  var storage = localStorage.getItem(name);
+  var innData;
+
+  if (storage) {
+    innData = JSON.parse(storage);
+    var creationDate = new Date(innData.creationDate);
+    var currentDate = new Date();
+
+    if ((currentDate - creationDate) / 1000 / 60 / 60 / 24 < 1) {
+      return true;
+    }
+  }
+
+  setLocalStorage(name, arr);
+  return !!localStorage.getItem(name);
+};
+/**@description equalizes the heights of the DOM elements.
+ * @param {array} colsArr; the array of the DOM elements to equalize;
+ * */
+
+
+exports.equalHeights = function (colsArr) {
+  var highestCal = 0;
+
+  for (var i = 0; i < colsArr.length; i++) {
+    if (colsArr[i].offsetHeight >= highestCal) {
+      highestCal = colsArr[i].offsetHeight;
+      log(highestCal);
+    }
+  }
+
+  colsArr.forEach(function (col) {
+    return col.style.height = highestCal + "px";
+  });
+};
+/**@description creates the array of Sku Samples from the array of the chosen goods;
+ * @param {array} chosenArr; The array of the chosen goods;
+ * @return {array} of Sku Samples;
+ * */
+
+
+exports.createSku = function (chosenArr) {
+  return chosenArr.map(function (sku) {
+    return new Sku(sku);
+  });
+};
+/**@description creates a new Order Sample with the data on the chosen goods;
+ * @param {array} skuArr; The array of Sku Samples with the data on the chosen goods;
+ * @param {number} tax;
+ * @param {number} shippingCost;
+ * @return {object} new Order Sample;
+ * */
+
+
+exports.makeOrder = function (skuArr, tax, shippingCost) {
+  return new Order(skuArr, tax, shippingCost);
+};
+/**@description
+ * - to remove the className 'active' from the array of nodes;
+ * - to highlight the corresponding 'span' in the array, adding class 'active';
+ * - to show the corresponding form block with the inputs, adding class 'active';
+ * By adding the class, the node becomes visible/highlighted;
+ * @param {number} stage; The stage of the form; Initially it is 0;
+ * @param {array} blocksArr; The array of the nodeLists to work with;
+ * */
+
+
+exports.runStage = function (stage, blocksArr) {
+  var className = 'active';
+
+  if (blocksArr.length) {
+    blocksArr.forEach(function (nodeList) {
+      if (nodeList.length) {
+        removeClassIn(nodeList, className);
+        nodeList[stage].classList.add(className);
+      } else {
+        throw new Error("the nodeList is empty");
+      }
+    });
+  } else {
+    throw new Error("the array of nodeLists given in arguments is empty");
+  }
+};
 /**@description
  * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
  *
@@ -532,8 +537,7 @@ exports.listen = function (form) {
     if (target.name !== "recipient-country" && target.name !== "billing-country") {
       toggleParent(target);
     }
-  }, true); //onfocus can be caught on bubbling up
-
+  }, true);
   /**@description
    * if target is blur, then to highlight the border of the Parent Element;
    * */
@@ -545,7 +549,27 @@ exports.listen = function (form) {
       toggleParent(target);
     }
   }, true);
-}; ///FUNCTIONS
+  /**@description
+   * if target is blur, then to highlight the border of the Parent Element;
+   * */
+
+  form.addEventListener("click", function (_ref3) {
+    var target = _ref3.target;
+
+    if (target.closest("div").dataset.type === "continue") {}
+  });
+};
+/**@description it cleans the classname in the nodeList of DOM elements;
+ * @param {array} nodeList of the elements for removing the classname
+ * @param {string} className to be removed;
+ **/
+
+
+function removeClassIn(nodeList, className) {
+  nodeList.forEach(function (el) {
+    el.classList.remove(className);
+  });
+} ///FUNCTIONS
 
 /**@description:
  * It create the localStorage with the data and the creation Date;
@@ -573,22 +597,83 @@ function setLocalStorage(name, data) {
 function toggleParent(target) {
   target.parentElement.classList.toggle("active");
 }
-/**@description to check for the stage of the form filling and to highlight the
- * corresponding DOM element in the array of els;
- * @param {array} stageArr; The array of DOM elements;
- * @param {object} payer;  the sample of Payer;
- * @param {object} recipient; the sample of Recipient;
- * */
+/**@description: checks the array of DOM elements if they contain the css .class
+ * @return: {number} array index of the DOM element, which contains the .class
+ * @return: {boolean} false if no DOM elements with the .class in need
+ **/
 
 
-function checkStage(stageArr, payer, recipient) {} ///dev
+function findClassIn(array, className) {
+  var res = null;
+  array.forEach(function (item, index) {
+    if (item.classList.contains(className)) {
+      res = index;
+    }
+  });
+  return res;
+}
+
+function cleanActiveIn() {} ///dev
 
 
 function log(item) {
   console.log(item);
 }
 
-},{"../classes":1}],4:[function(require,module,exports){
+},{"../classes":1}],6:[function(require,module,exports){
+'use strict';
+/**@description comprises the main operations for initiating the App:
+ * - it runs 'createSku()' to create the Sku samples from the array of the chosen goods;
+ * - it runs 'makeOrder()' to create the Order Sample, which comprises all the
+ * calculations and will be finally ready for fetching to the server;
+ * - it runs 'createCartDom()' to create DOM elements and to show the chosen
+ * goods` details and calculation results; *
+ * - it runs 'runStage()' to highlight the DOM el in the Array and
+ * to show the corresponding form block to be filled by adding class name;
+ * - it runs 'listen()' to hang the listeners to the form;
+ * @param {object} data: the initial data;
+ * **/
+
+module.exports = function (data) {
+  //creates the DOM elements from the given 'cartData';
+  var createCartDom = require('./createCartDom'); //the stage of the form filling;
+
+
+  var stage = data.stage; //there are three stages (0, 1, 2)
+
+  var stageArr = data.stageWrapper.querySelectorAll("span[data-type=\"stage\"]"); //three stage form blocks with the inputs
+
+  var formBlockArr = data.form.querySelectorAll(".".concat(data.formBlock));
+  var skuArr = data.init.createSku(data.chosenArr);
+  var tax = data.tax,
+      shippingCost = data.shippingCost;
+  var order;
+
+  if (skuArr.length) {
+    order = data.init.makeOrder(skuArr, tax, shippingCost);
+  }
+
+  var cartData = {
+    order: order,
+    cartList: data.cartList,
+    cartInfoTotal: data.cartInfoTotal,
+    cartItem: data.cartItem,
+    imageContainer: data.imageContainer,
+    cartItemInfo: data.cartItemInfo,
+    cartItemSpec: data.cartItemSpec
+  }; //creating Cart elements in DOM
+
+  createCartDom(cartData);
+  data.init.runStage(stage, [stageArr, formBlockArr]);
+  data.init.listen(data.form);
+}; ///dev
+
+
+function log(item) {
+  console.log(item);
+}
+
+},{"./createCartDom":3}],7:[function(require,module,exports){
 'use strict';
 
 exports.chosenArr = [{
@@ -615,8 +700,17 @@ exports.chosenArr = [{
 }];
 exports.areaArr = ["Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore"];
 
-},{}],5:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
+/**@description each property name equals the inputs` name of the form;
+ * The input will be operated with the corresponding properties:
+ * - error: in case of not valid input value the input will show the correct example
+ * of the input;
+ * - type: the type of the input will initiate the corresponding method to validate the
+ * input value;
+ * - stage: when submitting the form to switch to the next form stage, the inputs of
+ * the corresponding stage will be checked to be filled;
+ * */
 
 module.exports = {
   "recipient-full-name": {
@@ -711,7 +805,7 @@ module.exports = {
   }
 };
 
-},{}],6:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 /**@description: Validating each char input;
  * */
