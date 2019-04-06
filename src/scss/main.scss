@@ -436,7 +436,7 @@ main {
       }
 
       input {
-        ///position: relative;
+        width: 100%;
         padding-left: 70px;
         border: none;
         border-top: 2px solid $color-grey-light;
@@ -453,6 +453,7 @@ main {
   .alert-message {
     display: inline-block;
     position: absolute;
+    z-index: 10;
     top: -80%;
     left: -20px;
     @include init-font(25px, 400);

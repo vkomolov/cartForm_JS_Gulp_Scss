@@ -59,6 +59,7 @@ exports.Order = class {
         this.shipping = shippingCost;
         this.payer = payer; //will be added when the form is filled
         this.recipient = recipient; //will be added when the form is filled
+        this.orderDate = new Date();
     }
 
     /**@description it calculates the total sum from each chosen item;

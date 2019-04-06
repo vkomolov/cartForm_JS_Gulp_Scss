@@ -14,6 +14,7 @@
 module.exports = ( data ) => {
     //creates the DOM elements from the given 'cartData';
     const createCartDom = require('./createCartDom');
+    const formListen = require('./formListen');
     //the stage of the form filling;
     let { stage } = data;
 
@@ -26,13 +27,12 @@ module.exports = ( data ) => {
     const skuArr = data.init.createSku(data.chosenArr);
     const { tax, shippingCost } = data;
 
-    let order;
     if (skuArr.length) {
-        order = data.init.makeOrder(skuArr, tax, shippingCost);
+        data.order = data.init.makeOrder(skuArr, tax, shippingCost);
     }
 
     const cartData = {
-        order,
+        order: data.order,
         cartList: data.cartList,
         cartInfoTotal: data.cartInfoTotal,
         cartItem: data.cartItem,
@@ -44,9 +44,9 @@ module.exports = ( data ) => {
     //creating Cart elements in DOM
     createCartDom( cartData );
 
-    data.init.runStage(stage, [stageArr, formBlockArr]);
+    data.init.updateStage(stage, [stageArr, formBlockArr], data.active);
 
-    data.init.listen(data.form);
+    formListen( data );
 };
 
 ///dev

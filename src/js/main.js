@@ -25,9 +25,11 @@ window.addEventListener("DOMContentLoaded", function() {
      * @property {object} init; comprises the inner funcs;
      * @property {object} inputNamesObj; comprises the form inputs` data;
      * @property {object} regExpObj; regExp data for validating the form inputs;
+     * @property {object} personInfo; will be set when all required inputs filled
      * */
     const data = {
             ...cssVars,
+        order: {},
         tax,
         shippingCost,
         stage: 0,
@@ -35,7 +37,8 @@ window.addEventListener("DOMContentLoaded", function() {
         areaArr: innData.areaArr,
         init: require('./partial/funcCollection'),
         inputNamesObj: require('./partial/inputsData'),
-        regExpObj: require('./partial/regExpData')
+        regExpObj: require('./partial/regExpData'),
+        inputValues: {}
     };
 
     /**@description checks for the localStorage or creates it;
@@ -69,8 +72,6 @@ window.addEventListener("DOMContentLoaded", function() {
             document.querySelector(`.${data.leftBarName}`),
             document.querySelector(`.${data.rightBarName}`)
         ];
-
-        log(colsArr);
 
         /**@description making heights of the columns in the form to be equal by height;
          * @param {array} colsArr; The array of columns to equalize in height;

@@ -90,6 +90,8 @@ function () {
     this.payer = payer; //will be added when the form is filled
 
     this.recipient = recipient; //will be added when the form is filled
+
+    this.orderDate = new Date();
   }
   /**@description it calculates the total sum from each chosen item;
    * */
@@ -209,10 +211,12 @@ window.addEventListener("DOMContentLoaded", function () {
    * @property {object} init; comprises the inner funcs;
    * @property {object} inputNamesObj; comprises the form inputs` data;
    * @property {object} regExpObj; regExp data for validating the form inputs;
+   * @property {object} personInfo; will be set when all required inputs filled
    * */
 
 
   var data = _objectSpread({}, cssVars, {
+    order: {},
     tax: tax,
     shippingCost: shippingCost,
     stage: 0,
@@ -220,7 +224,8 @@ window.addEventListener("DOMContentLoaded", function () {
     areaArr: innData.areaArr,
     init: require('./partial/funcCollection'),
     inputNamesObj: require('./partial/inputsData'),
-    regExpObj: require('./partial/regExpData')
+    regExpObj: require('./partial/regExpData'),
+    inputValues: {}
   });
   /**@description checks for the localStorage or creates it;
    * @param {string} data.storageChosen; The name of the localStorage;
@@ -249,7 +254,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
 
     var colsArr = [document.querySelector(".".concat(data.leftBarName)), document.querySelector(".".concat(data.rightBarName))];
-    log(colsArr);
     /**@description making heights of the columns in the form to be equal by height;
      * @param {array} colsArr; The array of columns to equalize in height;
      * */
@@ -269,7 +273,115 @@ function log(item) {
   console.log(item);
 }
 
-},{"./partial/cssVars":4,"./partial/funcCollection":5,"./partial/initForm":6,"./partial/initialData":7,"./partial/inputsData":8,"./partial/regExpData":9}],3:[function(require,module,exports){
+},{"./partial/cssVars":6,"./partial/funcCollection":8,"./partial/initForm":9,"./partial/initialData":10,"./partial/inputsData":11,"./partial/regExpData":12}],3:[function(require,module,exports){
+'use strict';
+/**@description When the order data is posted, then
+ * on response OK to show final thanks in DOM.
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+module.exports = function (data) {
+  var form = data.form,
+      order = data.order;
+  var leftBar = document.querySelector(".".concat(data.leftBarName));
+  var rightBar = document.querySelector(".".concat(data.rightBarName));
+  var thankU = document.querySelector(".".concat(data.thankU));
+  var orderNumberSpan = document.getElementById(data.orderNoSpan);
+  var payerEmailSpan = document.getElementById(data.payerEmailSpan);
+  var orderDateSpan = document.getElementById(data.orderDate);
+  form.remove();
+  rightBar.classList.add("ready"); //giving shade layer to the cart block
+
+  thankU.classList.add("active"); //showing 'thanks'
+
+  orderNumberSpan.textContent = order.orderNo;
+  orderDateSpan.textContent = order.orderDate.toDateString();
+  payerEmailSpan.textContent = order.payer['billing-email'];
+}; ///dev
+
+
+function log(item) {
+  console.log(item);
+}
+
+},{}],4:[function(require,module,exports){
+'use strict'; ///imports
+
+var buildThanks = require("./buildThanks");
+/**@description: Checking the empty inputs for the each stage of the form:
+ * 'Shipping', 'Billing', 'Payment');
+ * At the next stages it checks the inputs of the current and previous stages (for safe);
+ * The 'optional' inputs (with the stage "-1") will be omitted
+ * The first empty input will have the alarm message above it.
+ * All empty but required inputs will be marked.
+ * **/
+
+
+module.exports = function (data) {
+  var stage = data.stage,
+      active = data.active;
+  var emptyInputArr = []; //refreshing previous results of the empty inputs` array
+  //there are three stages (0, 1, 2)
+
+  var stageArr = data.stageWrapper.querySelectorAll("span[data-type=\"stage\"]");
+  var formBlockArr = data.form.querySelectorAll(".".concat(data.formBlock));
+  data.init.removeAlerts(data); //removing previous possible alert message
+
+  data.init.unmarkInputs(data); //unmarking all previous marking inputs
+
+  for (var elem in data.inputNamesObj) {
+    if (data.inputNamesObj[elem].stage <= stage && data.inputNamesObj[elem].stage !== -1) {
+      //except inputs 'optional'...not required
+      var inputEl = data.form.elements[elem];
+
+      if (inputEl) {
+        //if input exists in DOM
+        if (!inputEl.value) {
+          //if input is empty
+          if (inputEl.name === "recipient-country" //if pseudo input in country selection
+          || inputEl.name === "billing-country") {
+            var pseudoInput = data.form.querySelector("span[data-type=".concat(inputEl.name, "]"));
+            var pseudoInputWrapper = pseudoInput.parentElement;
+            pseudoInputWrapper.classList.add("marked"); // marking pseudo input Parent
+
+            emptyInputArr.push(pseudoInputWrapper.parentElement); //pushing the Parent of the pseudoInput Wrapper;
+          } else {
+            inputEl.classList.add("marked");
+            emptyInputArr.push(inputEl.parentElement);
+          }
+        }
+      } else throw new Error("no DOM input by name " + elem + "found");
+    }
+  }
+  /**@description if some empty input(s) found, then to insert the alarm span and
+   * to focus on the first empty input;
+   * to mark all empty inputs;
+   * */
+
+
+  if (emptyInputArr.length) {
+    data.init.insertAlarm(emptyInputArr[0], data);
+  } else {
+    if (stage < stageArr.length - 1) {
+      data.stage = ++stage;
+      data.init.updateStage(stage, [stageArr, formBlockArr], active);
+    } else {
+      data.init.getAllInputs(data);
+      data.init.processOrder(data); ///conditionally POSTing the order data and receiving the order No
+
+      var orderNo = "12345_ab_bl11";
+      data.order.orderNo = orderNo;
+      buildThanks(data);
+    }
+  }
+}; ///dev
+
+
+function log(item) {
+  console.log(item);
+}
+
+},{"./buildThanks":3}],5:[function(require,module,exports){
 'use strict';
 /**@description
  * - creates the DOM elements from the given 'cartData';
@@ -365,7 +477,7 @@ module.exports = function (cartData) {
   }
 };
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 /**@description the list of style names, used in DOM:
  * formName - the id-name of the form to work with;
@@ -376,15 +488,19 @@ module.exports = function (cartData) {
  * rightBarName - the name of the right bar with the cart data fields;
  * cartQntyName - the id-name of the DOM El, showing the number of the chosen items;
  * cartList - the id-name of the DOM Container, comprising the blocks of the goods;
- * cartInfoTotal - the class-name of the DOM Wrapper, showing the total
+ * cartInfoTotal - the class of the DOM Wrapper, showing the total
  *                 calculation values of the purchase;
- * cartInfoTotalRow - the class-name of the row in 'cartInfoTotal' wrapper;
+ * cartInfoTotalRow - the class of the row in 'cartInfoTotal' wrapper;
  * cartItem - the DOM Container of the chosen goods-item;
- * imageContainer - the class-name of the DOM Wrapper, containing img;
- * cartItemInfo - the class-name of the DOM Wrapper, containing the Cart Item Info;
- * cartItemSpec - the class-name of the DOM El, containing the details of the Cart Item Info;
- * form__block - the class-name of three form blocks for each Registration Stage;
- * stageWrapperName - the name of the DOM Container comprising 'stages' in <span>; *
+ * imageContainer - the class of the DOM Wrapper, containing img;
+ * cartItemInfo - the class of the DOM Wrapper, containing the Cart Item Info;
+ * cartItemSpec - the class of the DOM El, containing the details of the Cart Item Info;
+ * formBlock - the class of three form blocks for each Registration Stage;
+ * stageWrapperName - the class of the DOM Container comprising 'stages' in <span>;
+ * selectionBlock - the class of the block, which contains the selection from the list;
+ * optionWrapper - the class, wraps the list of countries to choose from;
+ * alertMessage - the class of the span of the alarm message;
+ * marked - the class for the marked inputs
  * tax - {number} percent share will be taken from the sum of the Order;
  * shippingCost - {number} the cost for the shipment as the percent share from the sum;
  * innData - {object} initial data; in project will be replaced with the real data of the
@@ -406,10 +522,179 @@ module.exports = {
   cartItemInfo: 'cart-item__info',
   cartItemSpec: 'cart-item__spec',
   formBlock: 'form__block',
-  stageWrapperName: 'form__stage-wrapper'
+  stageWrapperName: 'form__stage-wrapper',
+  selectionBlock: 'selection__block',
+  optionWrapper: 'option-wrapper',
+  alertMessage: 'alert-message',
+  marked: 'marked',
+  active: 'active',
+  bold: 'bold',
+  thankU: 'thankU-wrapper',
+  orderNoSpan: 'order-number',
+  payerEmailSpan: 'payer-email',
+  orderDate: 'order-date'
 };
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+'use strict';
+/**@description
+ * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
+ *
+ * */
+
+module.exports = function (data) {
+  var checkForNext = require('./checkForNext');
+
+  var form = data.form,
+      active = data.active,
+      bold = data.bold;
+  /**@description
+   * if during input the 'enter' or 'escape' keys pressed, then the input is blur
+   * */
+
+  form.addEventListener("keydown", function (ev) {
+    var target = ev.target;
+
+    if (ev.keyCode === 13 || ev.keyCode === 27) {
+      target.blur();
+    }
+  }, true);
+  /**@description
+   * if target is focused, then to highlight the border of the Parent Element;
+   * */
+
+  form.addEventListener("focus", function (_ref) {
+    var target = _ref.target;
+
+    if (target.name !== "recipient-country" && target.name !== "billing-country") {
+      toggleParent(target, active);
+    }
+  }, true);
+  /**@description
+   * if target is blur, then to hide the border of the Parent Element;
+   * */
+
+  form.addEventListener("blur", function (_ref2) {
+    var target = _ref2.target;
+
+    if (target.name !== "recipient-country" && target.name !== "billing-country") {
+      toggleParent(target, active);
+    }
+  }, true); //////CLICK EVENT
+
+  /**@description "click" events are hanged on the total form, identifying the target
+   * by the dataset value of the attributes;
+   * */
+
+  form.addEventListener("click", function (_ref3) {
+    var target = _ref3.target;
+
+    if (target.closest("div").dataset.type === "continue") {
+      /**@description if the button "continue" is clicked then to check all
+       * inputs of the current and previous stages to be filled;
+       * */
+      checkForNext(data);
+    }
+    /**@description if pseudo-input 'country' is clicked then the selection list
+     * opens in the absolute for the selection from the list of the values;
+     * On filling the input the matched list of the countries is shown to select;
+     * When the selection is made, then to transfer the value to the hidden input;
+     * */
+
+
+    if (target.closest(".".concat(data.selectionBlock))) {
+      var selectBlock = target.closest(".".concat(data.selectionBlock)); //pseudo-input wrapper
+
+      var hiddenInput = selectBlock.parentElement.querySelector("input"); //getting inner input
+
+      var optionBlock = hiddenInput.parentElement; //intermediate wrapper of the input
+
+      hiddenInput.value = ""; //resetting value of the search-input
+
+      setSelectList(optionBlock, data.areaArr); //creating list of option items (span)
+
+      optionBlock.classList.add(active); //to switch display: block from none
+
+      selectBlock.classList.add(active); //to display the search-icon in absolute
+
+      hiddenInput.focus();
+    }
+
+    if (target.dataset.type === "option") {
+      var _optionBlock = target.parentElement.parentElement;
+
+      var _hiddenInput = _optionBlock.querySelector("input"); // "recipient-country" or "billing-country"
+
+
+      var _selectBlock = _optionBlock.parentElement;
+
+      var pseudoInput = _selectBlock.querySelector("span[data-type=".concat(_hiddenInput.name));
+
+      _hiddenInput.value = ""; //resetting for getting round blur event checking
+
+      _hiddenInput.value = target.textContent;
+
+      if (_hiddenInput.value !== "") {
+        pseudoInput.textContent = _hiddenInput.value;
+        pseudoInput.classList.add(bold);
+        /**@description
+         * - to switch block to display: none;
+         * - to switch the search-icon off
+         * */
+
+        setTimeout(function () {
+          _optionBlock.classList.remove(active);
+
+          _selectBlock.querySelector(".".concat(data.selectionBlock)).classList.remove(active);
+        }, 200);
+      }
+    }
+  }); /////CHANGE EVENT
+  //////FUNCTIONS
+
+  /**@description toggles the Parent element`s border;
+   * @param {object} target; DOM element, which has the Parent`s border to toggle;
+   * @param {string} classActive; the class-name to highlight the DOM element;
+   * */
+
+  function toggleParent(target, classActive) {
+    target.parentElement.classList.toggle(classActive);
+  }
+  /**@description: dynamically creates the option list of the countries, which will
+   * be filtered on matching the search input value;
+   * It listens to the input and sorts countries` list with the matching chars.
+   * @param: {object} objTarget - the DOM Container for the option list
+   * @param: {array} areaArr - the list of the countries for selection
+   * */
+
+
+  function setSelectList(objTarget, areaArr) {
+    var optionWrapper = objTarget.querySelector(".".concat(data.optionWrapper));
+
+    if (optionWrapper) {
+      optionWrapper.parentElement.removeChild(optionWrapper); //remaking optionWrapper
+    }
+
+    optionWrapper = document.createElement("div");
+    optionWrapper.classList.add(data.optionWrapper);
+
+    for (var i = 0; i < areaArr.length; i++) {
+      var option = document.createElement("span");
+      option.setAttribute("data-type", "option");
+      option.textContent = areaArr[i];
+      optionWrapper.appendChild(option);
+    }
+
+    objTarget.insertBefore(optionWrapper, objTarget.firstChild);
+  }
+}; ///dev
+
+
+function log(item) {
+  console.log(item);
+}
+
+},{"./checkForNext":4}],8:[function(require,module,exports){
 'use strict'; //imports
 
 var _require = require('../classes'),
@@ -454,7 +739,6 @@ exports.equalHeights = function (colsArr) {
   for (var i = 0; i < colsArr.length; i++) {
     if (colsArr[i].offsetHeight >= highestCal) {
       highestCal = colsArr[i].offsetHeight;
-      log(highestCal);
     }
   }
 
@@ -491,11 +775,14 @@ exports.makeOrder = function (skuArr, tax, shippingCost) {
  * By adding the class, the node becomes visible/highlighted;
  * @param {number} stage; The stage of the form; Initially it is 0;
  * @param {array} blocksArr; The array of the nodeLists to work with;
+ * @param {string} className; the classname to highlight the DOM el;
  * */
 
 
-exports.runStage = function (stage, blocksArr) {
-  var className = 'active';
+exports.updateStage = function () {
+  var stage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var blocksArr = arguments.length > 1 ? arguments[1] : undefined;
+  var className = arguments.length > 2 ? arguments[2] : undefined;
 
   if (blocksArr.length) {
     blocksArr.forEach(function (nodeList) {
@@ -510,55 +797,129 @@ exports.runStage = function (stage, blocksArr) {
     throw new Error("the array of nodeLists given in arguments is empty");
   }
 };
-/**@description
- * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
- *
+/**@description removes alert spans opened in DOM
+ * @param {object} data: the initial data with funcs and variables;
  * */
 
 
-exports.listen = function (form) {
-  /**@description
-   * if during input the 'enter' key pressed, then the input is blur
-   * */
-  form.addEventListener("keydown", function (ev) {
-    var target = ev.target;
+exports.removeAlerts = function (_ref) {
+  var form = _ref.form,
+      alertMessage = _ref.alertMessage;
+  var alertArr = form.querySelectorAll(".".concat(alertMessage));
 
-    if (ev.keyCode === 13) {
-      target.blur();
-    }
-  }, true);
-  /**@description
-   * if target is focused, then to highlight the border of the Parent Element;
-   * */
-
-  form.addEventListener("focus", function (_ref) {
-    var target = _ref.target;
-
-    if (target.name !== "recipient-country" && target.name !== "billing-country") {
-      toggleParent(target);
-    }
-  }, true);
-  /**@description
-   * if target is blur, then to highlight the border of the Parent Element;
-   * */
-
-  form.addEventListener("blur", function (_ref2) {
-    var target = _ref2.target;
-
-    if (target.name !== "recipient-country" && target.name !== "billing-country") {
-      toggleParent(target);
-    }
-  }, true);
-  /**@description
-   * if target is blur, then to highlight the border of the Parent Element;
-   * */
-
-  form.addEventListener("click", function (_ref3) {
-    var target = _ref3.target;
-
-    if (target.closest("div").dataset.type === "continue") {}
-  });
+  if (alertArr.length) {
+    alertArr.forEach(function (alert) {
+      alert.parentElement.removeChild(alert);
+    });
+  }
 };
+/**@description unmarks the inputs in DOM;
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+
+exports.unmarkInputs = function (data) {
+  var marked = data.form.querySelectorAll(".".concat(data.marked));
+
+  if (marked.length) {
+    marked.forEach(function (item) {
+      item.classList.remove(data.marked);
+    });
+  }
+};
+/**@description creates alarm messages for DOM elements;
+ * @param {object} targetObj: the DOM element will be inserted with the alarm span;
+ * @param {object} data: the initial data with funcs and variables;
+ * @param {string} type; 'empty', 'error' or custom as the text of the message;
+ * */
+
+
+exports.insertAlarm = function (targetObj, data) {
+  var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "empty";
+  var message = "please enter ";
+  var inputName;
+  var inputEl; //the inner input
+
+  var object; //the DOM element to insert the alarm message;
+
+  /**@description to get the input-name for inserting the alarm on the empty input;
+   **/
+
+  if (targetObj.classList.contains(data.selectionBlock)) {
+    //if it is a pseudo input wrapper
+    object = targetObj.parentElement;
+    inputEl = object.querySelector("input");
+    inputName = inputEl.name;
+  } else if (targetObj.querySelector("input")) {
+    object = targetObj;
+    inputEl = targetObj.querySelector("input");
+    inputName = inputEl.name;
+    data.form.elements[inputName].style.caretColor = "red";
+  } else throw new Error("no input found");
+
+  inputEl.focus();
+
+  if (type === "empty") {
+    //putting the input`s name to the message content
+    message += inputName.replace(/-/g, " ");
+    insertSpan(targetObj, data.alertMessage, message);
+  } else if (type === "error") {
+    message = "format: ";
+    message += data.inputNamesObj[inputName]["error"]; //creating 'error' message from the name of the input
+
+    insertSpan(targetObj, data.alertMessage, message);
+  } else insertSpan(targetObj, data.alertMessage, type); //creating custom message
+
+};
+/**@description: collects all the values from the form inputs.
+ * @param {object} data: the initial data with funcs and variables;
+ **/
+
+
+exports.getAllInputs = function (data) {
+  var inputNamesObj = data.inputNamesObj,
+      inputValues = data.inputValues;
+
+  for (var elem in inputNamesObj) {
+    if (elem === "card-date") {
+      var inputValue = data.form.elements[elem].value;
+      var inputYear = inputValue.slice(-2);
+      var inputMonth = inputValue.slice(0, 2);
+      inputValues[elem] = stringToDate(inputYear, inputMonth);
+    } else {
+      inputValues[elem] = data.form.elements[elem].value;
+    }
+  }
+};
+/**@description: separates the properties of the inputs to Recipient and Payer Data;
+ * it updates the data.order with the values of Recipient and Payer Data;
+ * @param {object} data: the initial data with funcs and variables;
+ * ***/
+
+
+exports.processOrder = function (data) {
+  var inputValues = data.inputValues;
+  var emptyInputs = isEmptyProp(inputValues);
+  var regExp = /billing/;
+  /**@description processOrder runs only after all inputs are checked to be filled;
+   * for development - additional check;
+   * */
+
+  if (emptyInputs.length) {
+    throw new Error("found empty inputs: ".concat(emptyInputs.join(', ')));
+  }
+  /**@description it finalizes the data.order with all purchase details,
+   * divided on the payer and recipient sections in data.order (object);
+   * @param {object} inputValues; it comprises in props the values of the inputs
+   * @param {object} regExp (need for the filter by regExp)
+   * @param {object} data.order (all the data on the purchase, collected will be
+   * kept in the object.
+   * */
+
+
+  separateObj(inputValues, regExp, data.order);
+}; ///INNER FUNCTIONS
+
 /**@description it cleans the classname in the nodeList of DOM elements;
  * @param {array} nodeList of the elements for removing the classname
  * @param {string} className to be removed;
@@ -569,9 +930,8 @@ function removeClassIn(nodeList, className) {
   nodeList.forEach(function (el) {
     el.classList.remove(className);
   });
-} ///FUNCTIONS
-
-/**@description:
+}
+/**@description
  * It create the localStorage with the data and the creation Date;
  * @param {string} name; The name of the localStorage;
  * @param {array} data; Contains: {string} creationDate, {array} of objects;
@@ -589,38 +949,81 @@ function setLocalStorage(name, data) {
     localStorage.setItem(name, JSON.stringify(dataWithDate));
   }
 }
-/**@description toggles the Parent element`s border;
- * @param {object} target; DOM element, which has the Parent`s border to toggle;
- * */
+/**@description creates the Date from the input chars (yy, mm);
+ * @param {string} yy - year
+ * @param {string} mm - month
+ * @return {object} new Date
+ * **/
 
 
-function toggleParent(target) {
-  target.parentElement.classList.toggle("active");
+function stringToDate(yy, mm) {
+  var month = +mm - 1; //month minus 1 (jan: 0)
+
+  var year = +yy + 2000;
+  return new Date(year, month);
 }
-/**@description: checks the array of DOM elements if they contain the css .class
- * @return: {number} array index of the DOM element, which contains the .class
- * @return: {boolean} false if no DOM elements with the .class in need
+/**@description: insert a span inside the targetObj
+ * @param {object} parent; the target Object to insert alert in;
+ * @param {string} alertClass; the class-name of the alert span
+ * @param {string} message; the alert message;
+ * **/
+
+
+function insertSpan(parent, alertClass, message) {
+  var span = document.createElement("span");
+  span.textContent = message;
+  parent.insertBefore(span, parent.firstChild);
+  span.setAttribute("class", alertClass);
+}
+/**@description checks for the empty properties of an object except the optional
+ * properties;
+ * @param {object} obj for searching empty inputs;
+ * @return {array} the array of empty inputs;
  **/
 
 
-function findClassIn(array, className) {
-  var res = null;
-  array.forEach(function (item, index) {
-    if (item.classList.contains(className)) {
-      res = index;
-    }
-  });
-  return res;
-}
+function isEmptyProp(obj) {
+  var emptyInputs = [];
 
-function cleanActiveIn() {} ///dev
+  for (var prop in obj) {
+    if (!obj[prop] && !prop.match(/optional/)) {
+      //if property is empty except 'optional' and 'billing-optional'
+      emptyInputs.push(prop);
+    }
+  }
+
+  return emptyInputs;
+}
+/**@description to devide the obj properties on two objects by filtering properties
+ * with the given regExp;
+ * @param {object} obj; The given object;
+ * @param {object} regExp; To filter properties with regExp
+ * @param {object} order;
+ * */
+
+
+function separateObj(obj, regExp, order) {
+  var payerData = {};
+  var recipientData = {};
+
+  for (var elem in obj) {
+    if (elem.match(regExp)) {
+      payerData[elem] = obj[elem];
+    } else {
+      recipientData[elem] = obj[elem];
+    }
+  }
+
+  order.initProperty("payer", payerData);
+  order.initProperty('recipient', recipientData);
+} ///dev
 
 
 function log(item) {
   console.log(item);
 }
 
-},{"../classes":1}],6:[function(require,module,exports){
+},{"../classes":1}],9:[function(require,module,exports){
 'use strict';
 /**@description comprises the main operations for initiating the App:
  * - it runs 'createSku()' to create the Sku samples from the array of the chosen goods;
@@ -636,7 +1039,9 @@ function log(item) {
 
 module.exports = function (data) {
   //creates the DOM elements from the given 'cartData';
-  var createCartDom = require('./createCartDom'); //the stage of the form filling;
+  var createCartDom = require('./createCartDom');
+
+  var formListen = require('./formListen'); //the stage of the form filling;
 
 
   var stage = data.stage; //there are three stages (0, 1, 2)
@@ -647,14 +1052,13 @@ module.exports = function (data) {
   var skuArr = data.init.createSku(data.chosenArr);
   var tax = data.tax,
       shippingCost = data.shippingCost;
-  var order;
 
   if (skuArr.length) {
-    order = data.init.makeOrder(skuArr, tax, shippingCost);
+    data.order = data.init.makeOrder(skuArr, tax, shippingCost);
   }
 
   var cartData = {
-    order: order,
+    order: data.order,
     cartList: data.cartList,
     cartInfoTotal: data.cartInfoTotal,
     cartItem: data.cartItem,
@@ -664,8 +1068,8 @@ module.exports = function (data) {
   }; //creating Cart elements in DOM
 
   createCartDom(cartData);
-  data.init.runStage(stage, [stageArr, formBlockArr]);
-  data.init.listen(data.form);
+  data.init.updateStage(stage, [stageArr, formBlockArr], data.active);
+  formListen(data);
 }; ///dev
 
 
@@ -673,7 +1077,7 @@ function log(item) {
   console.log(item);
 }
 
-},{"./createCartDom":3}],7:[function(require,module,exports){
+},{"./createCartDom":5,"./formListen":7}],10:[function(require,module,exports){
 'use strict';
 
 exports.chosenArr = [{
@@ -700,7 +1104,7 @@ exports.chosenArr = [{
 }];
 exports.areaArr = ["Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore"];
 
-},{}],8:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 /**@description each property name equals the inputs` name of the form;
  * The input will be operated with the corresponding properties:
@@ -805,7 +1209,7 @@ module.exports = {
   }
 };
 
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 /**@description: Validating each char input;
  * */
