@@ -50,15 +50,14 @@ exports.Order = class {
      * @param {array} skuArr: Array of Sku samples;
      * @param {number} tax: taxes as the share, percentage in {number};
      * @param {number} shippingCost: cost as the share, percentage in {number};
-     * @param {object} payer;  the sample of Payer;
-     * @param {object} recipient; the sample of Recipient;
      */
-    constructor(skuArr, tax=0, shippingCost=0, payer=null, recipient=null) {
+    constructor(skuArr, tax=0, shippingCost=0) {
+        this.orderNo = null;
+        this.payer = null; //will be added when the form is filled
+        this.recipient = null; //will be added when the form is filled
         this.skuArr = skuArr;
         this.tax = tax;
         this.shipping = shippingCost;
-        this.payer = payer; //will be added when the form is filled
-        this.recipient = recipient; //will be added when the form is filled
         this.orderDate = new Date();
     }
 

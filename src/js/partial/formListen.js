@@ -36,7 +36,7 @@ module.exports = ( data ) => {
         }
     } ,true);
 
-//////CLICK EVENT
+///CLICK EVENT
     /**@description "click" events are hanged on the total form, identifying the target
      * by the dataset value of the attributes;
      * */
@@ -92,7 +92,9 @@ module.exports = ( data ) => {
         }
     });
 
-/////CHANGE EVENT
+///INPUT EVENT
+
+///CHANGE EVENT
     
 
 //////FUNCTIONS

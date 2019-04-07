@@ -73,24 +73,21 @@ function () {
    * @param {array} skuArr: Array of Sku samples;
    * @param {number} tax: taxes as the share, percentage in {number};
    * @param {number} shippingCost: cost as the share, percentage in {number};
-   * @param {object} payer;  the sample of Payer;
-   * @param {object} recipient; the sample of Recipient;
    */
   function _class2(skuArr) {
     var tax = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
     var shippingCost = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-    var payer = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-    var recipient = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 
     _classCallCheck(this, _class2);
+
+    this.orderNo = null;
+    this.payer = null; //will be added when the form is filled
+
+    this.recipient = null; //will be added when the form is filled
 
     this.skuArr = skuArr;
     this.tax = tax;
     this.shipping = shippingCost;
-    this.payer = payer; //will be added when the form is filled
-
-    this.recipient = recipient; //will be added when the form is filled
-
     this.orderDate = new Date();
   }
   /**@description it calculates the total sum from each chosen item;
@@ -356,6 +353,8 @@ module.exports = function (data) {
   /**@description if some empty input(s) found, then to insert the alarm span and
    * to focus on the first empty input;
    * to mark all empty inputs;
+   * if the stage is final and the inputs are filled, then to finalize the order data
+   * and to init 'thankU' block;
    * */
 
 
@@ -365,12 +364,16 @@ module.exports = function (data) {
     if (stage < stageArr.length - 1) {
       data.stage = ++stage;
       data.init.updateStage(stage, [stageArr, formBlockArr], active);
-    } else {
-      data.init.getAllInputs(data);
-      data.init.processOrder(data); ///conditionally POSTing the order data and receiving the order No
+      var buttonNext = data.form.querySelector(".".concat(data.buttonContinue));
 
+      if (stage === 2) {
+        buttonNext.textContent = 'Pay Securely';
+      }
+    } else {
+      ///conditionally POSTing the order data and receiving the order No
       var orderNo = "12345_ab_bl11";
-      data.order.orderNo = orderNo;
+      data.order.initProperty('orderNo', orderNo);
+      data.init.processOrder(data);
       buildThanks(data);
     }
   }
@@ -532,7 +535,8 @@ module.exports = {
   thankU: 'thankU-wrapper',
   orderNoSpan: 'order-number',
   payerEmailSpan: 'payer-email',
-  orderDate: 'order-date'
+  orderDate: 'order-date',
+  buttonContinue: 'button_continue'
 };
 
 },{}],7:[function(require,module,exports){
@@ -580,7 +584,7 @@ module.exports = function (data) {
     if (target.name !== "recipient-country" && target.name !== "billing-country") {
       toggleParent(target, active);
     }
-  }, true); //////CLICK EVENT
+  }, true); ///CLICK EVENT
 
   /**@description "click" events are hanged on the total form, identifying the target
    * by the dataset value of the attributes;
@@ -649,7 +653,8 @@ module.exports = function (data) {
         }, 200);
       }
     }
-  }); /////CHANGE EVENT
+  }); ///INPUT EVENT
+  ///CHANGE EVENT
   //////FUNCTIONS
 
   /**@description toggles the Parent element`s border;
@@ -851,7 +856,6 @@ exports.insertAlarm = function (targetObj, data) {
     inputEl = object.querySelector("input");
     inputName = inputEl.name;
   } else if (targetObj.querySelector("input")) {
-    object = targetObj;
     inputEl = targetObj.querySelector("input");
     inputName = inputEl.name;
     data.form.elements[inputName].style.caretColor = "red";
@@ -871,26 +875,6 @@ exports.insertAlarm = function (targetObj, data) {
   } else insertSpan(targetObj, data.alertMessage, type); //creating custom message
 
 };
-/**@description: collects all the values from the form inputs.
- * @param {object} data: the initial data with funcs and variables;
- **/
-
-
-exports.getAllInputs = function (data) {
-  var inputNamesObj = data.inputNamesObj,
-      inputValues = data.inputValues;
-
-  for (var elem in inputNamesObj) {
-    if (elem === "card-date") {
-      var inputValue = data.form.elements[elem].value;
-      var inputYear = inputValue.slice(-2);
-      var inputMonth = inputValue.slice(0, 2);
-      inputValues[elem] = stringToDate(inputYear, inputMonth);
-    } else {
-      inputValues[elem] = data.form.elements[elem].value;
-    }
-  }
-};
 /**@description: separates the properties of the inputs to Recipient and Payer Data;
  * it updates the data.order with the values of Recipient and Payer Data;
  * @param {object} data: the initial data with funcs and variables;
@@ -898,7 +882,9 @@ exports.getAllInputs = function (data) {
 
 
 exports.processOrder = function (data) {
-  var inputValues = data.inputValues;
+  getAllInputs(data);
+  var inputValues = data.inputValues,
+      order = data.order;
   var emptyInputs = isEmptyProp(inputValues);
   var regExp = /billing/;
   /**@description processOrder runs only after all inputs are checked to be filled;
@@ -917,7 +903,7 @@ exports.processOrder = function (data) {
    * */
 
 
-  separateObj(inputValues, regExp, data.order);
+  separateObj(inputValues, regExp, order);
 }; ///INNER FUNCTIONS
 
 /**@description it cleans the classname in the nodeList of DOM elements;
@@ -994,6 +980,26 @@ function isEmptyProp(obj) {
 
   return emptyInputs;
 }
+/**@description: collects all the values from the form inputs.
+ * @param {object} data: the initial data with funcs and variables;
+ **/
+
+
+function getAllInputs(data) {
+  var inputNamesObj = data.inputNamesObj,
+      inputValues = data.inputValues;
+
+  for (var elem in inputNamesObj) {
+    if (elem === "card-date") {
+      var inputValue = data.form.elements[elem].value;
+      var inputYear = inputValue.slice(-2);
+      var inputMonth = inputValue.slice(0, 2);
+      inputValues[elem] = stringToDate(inputYear, inputMonth);
+    } else {
+      inputValues[elem] = data.form.elements[elem].value;
+    }
+  }
+}
 /**@description to devide the obj properties on two objects by filtering properties
  * with the given regExp;
  * @param {object} obj; The given object;
@@ -1003,19 +1009,19 @@ function isEmptyProp(obj) {
 
 
 function separateObj(obj, regExp, order) {
-  var payerData = {};
-  var recipientData = {};
+  var payer = {};
+  var recipient = {};
 
   for (var elem in obj) {
     if (elem.match(regExp)) {
-      payerData[elem] = obj[elem];
+      payer[elem] = obj[elem];
     } else {
-      recipientData[elem] = obj[elem];
+      recipient[elem] = obj[elem];
     }
   }
 
-  order.initProperty("payer", payerData);
-  order.initProperty('recipient', recipientData);
+  order.initProperty('payer', payer);
+  order.initProperty('recipient', recipient);
 } ///dev
 
 

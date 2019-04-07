@@ -52,5 +52,6 @@ module.exports = {
     thankU: 'thankU-wrapper',
     orderNoSpan: 'order-number',
     payerEmailSpan: 'payer-email',
-    orderDate: 'order-date'
+    orderDate: 'order-date',
+    buttonContinue: 'button_continue'
 };

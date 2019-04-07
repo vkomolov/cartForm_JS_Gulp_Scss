@@ -51,6 +51,8 @@ const formBlockArr = data.form.querySelectorAll(`.${data.formBlock}`);
     /**@description if some empty input(s) found, then to insert the alarm span and
      * to focus on the first empty input;
      * to mark all empty inputs;
+     * if the stage is final and the inputs are filled, then to finalize the order data
+     * and to init 'thankU' block;
      * */
     if (emptyInputArr.length) {
         data.init.insertAlarm(emptyInputArr[0], data);
@@ -59,15 +61,18 @@ const formBlockArr = data.form.querySelectorAll(`.${data.formBlock}`);
         if (stage < stageArr.length - 1) {
             data.stage = ++stage;
             data.init.updateStage(stage, [stageArr, formBlockArr], active );
+
+            const buttonNext = data.form.querySelector(`.${data.buttonContinue}`);
+            if (stage === 2) {
+                buttonNext.textContent = 'Pay Securely';
+            }
         }
         else {
-            data.init.getAllInputs( data );
-            data.init.processOrder( data );
-
-
             ///conditionally POSTing the order data and receiving the order No
             const orderNo = "12345_ab_bl11";
-            data.order.orderNo = orderNo;
+
+            data.order.initProperty('orderNo', orderNo);
+            data.init.processOrder( data );
 
             buildThanks(data);
         }

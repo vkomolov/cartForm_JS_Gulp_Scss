@@ -128,7 +128,6 @@ exports.insertAlarm = ( targetObj, data, type="empty" ) => {
         inputName = inputEl.name;
     }
     else if (targetObj.querySelector("input")){
-        object = targetObj;
         inputEl = targetObj.querySelector("input");
         inputName = inputEl.name;
         data.form.elements[inputName].style.caretColor = "red";
@@ -150,31 +149,14 @@ exports.insertAlarm = ( targetObj, data, type="empty" ) => {
     else insertSpan(targetObj, data.alertMessage, type); //creating custom message
 };
 
-/**@description: collects all the values from the form inputs.
- * @param {object} data: the initial data with funcs and variables;
- **/
-exports.getAllInputs = ( data ) => {
-    const { inputNamesObj, inputValues } = data;
-
-    for (let elem in inputNamesObj) {
-        if (elem === "card-date") {
-            let inputValue = data.form.elements[elem].value;
-            let inputYear = inputValue.slice(-2);
-            let inputMonth = inputValue.slice(0, 2);
-            inputValues[elem] = stringToDate(inputYear, inputMonth);
-        }
-        else {
-            inputValues[elem] = data.form.elements[elem].value;
-        }
-    }
-};
-
 /**@description: separates the properties of the inputs to Recipient and Payer Data;
  * it updates the data.order with the values of Recipient and Payer Data;
  * @param {object} data: the initial data with funcs and variables;
  * ***/
 exports.processOrder = ( data ) => {
-    const {inputValues} = data;
+    getAllInputs(data);
+
+    const {inputValues, order} = data;
     const emptyInputs = isEmptyProp( inputValues );
     let regExp = /billing/;
 
@@ -192,7 +174,7 @@ exports.processOrder = ( data ) => {
      * @param {object} data.order (all the data on the purchase, collected will be
      * kept in the object.
      * */
-    separateObj(inputValues, regExp, data.order);
+    separateObj(inputValues, regExp, order);
 };
 
 ///INNER FUNCTIONS
@@ -263,6 +245,25 @@ function isEmptyProp ( obj ) {
     return emptyInputs;
 }
 
+/**@description: collects all the values from the form inputs.
+ * @param {object} data: the initial data with funcs and variables;
+ **/
+function getAllInputs( data ) {
+    const { inputNamesObj, inputValues } = data;
+
+    for (let elem in inputNamesObj) {
+        if (elem === "card-date") {
+            let inputValue = data.form.elements[elem].value;
+            let inputYear = inputValue.slice(-2);
+            let inputMonth = inputValue.slice(0, 2);
+            inputValues[elem] = stringToDate(inputYear, inputMonth);
+        }
+        else {
+            inputValues[elem] = data.form.elements[elem].value;
+        }
+    }
+}
+
 /**@description to devide the obj properties on two objects by filtering properties
  * with the given regExp;
  * @param {object} obj; The given object;
@@ -270,18 +271,19 @@ function isEmptyProp ( obj ) {
  * @param {object} order;
  * */
 function separateObj(obj, regExp, order) {
-    const payerData = {};
-    const recipientData = {};
+    const payer = {};
+    const recipient = {};
 
     for (let elem in obj) {
         if (elem.match(regExp)) {
-            payerData[elem] = obj[elem];
+            payer[elem] = obj[elem];
         } else {
-            recipientData[elem] = obj[elem];
+            recipient[elem] = obj[elem];
         }
     }
-    order.initProperty("payer", payerData);
-    order.initProperty('recipient', recipientData);
+
+    order.initProperty('payer', payer);
+    order.initProperty('recipient', recipient);
 }
 
 ///dev

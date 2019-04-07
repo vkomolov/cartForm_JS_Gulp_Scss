@@ -540,6 +540,7 @@ main {
   @include init-font(32px, 400);
 
   text-align: center;
+  line-height: 90px;
   margin-top: 40px;
   color: $color-white;
   background-color: $color-violet-light;
@@ -550,10 +551,6 @@ main {
     transform: scale(1.02);
     box-shadow: 2px 2px 7px rgba(0,0,0, 0.8);
     cursor: pointer;
-  }
-
-  span {
-    line-height: 90px;
   }
 }
 

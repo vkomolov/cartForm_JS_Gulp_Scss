@@ -628,6 +628,7 @@ main {
   font-weight: 400;
   line-height: 36px;
   text-align: center;
+  line-height: 90px;
   margin-top: 40px;
   color: white;
   background-color: #7a3fa8;
@@ -639,8 +640,6 @@ main {
     -webkit-box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.8);
     box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.8);
     cursor: pointer; }
-  .button_continue span {
-    line-height: 90px; }
 
 .thankU-wrapper {
   padding: 90px;
