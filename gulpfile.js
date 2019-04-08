@@ -1,39 +1,82 @@
 'use strict';
 
-let gulp = require('gulp'), // Подключаем Gulp
-    sass = require('gulp-sass'), //Подключаем Sass пакет,
-    browserSync = require('browser-sync'), // Подключаем Browser Sync,
-    imagemin = require('gulp-imagemin'); //Подключаем ImageMin
+//plugins
+let gulp = require('gulp'),
+    browserSync = require("browser-sync").create(),
+    del = require('del');
 
-gulp.task('default', ['watch']);
+// utils
+let path = require('./src/js/utils/pathMap');
+let init = require('./src/js/utils/gulpFuncs');
 
-gulp.task('sass', function(){ // Создаем таск Sass
-    return gulp.src('app/sass/**/*.scss') // Берем источник
-        .pipe(sass()) // Преобразуем Sass в CSS посредством gulp-sass
-        .pipe(gulp.dest('dist/css')) // Выгружаем результата в папку app/css
-        .pipe(browserSync.reload({stream: true})); // Обновляем CSS на странице при изменении
+//scripts
+gulp.task('clean', function (cb) {
+    del([path.clean.html, path.clean.js, path.clean.style], cb());
 });
 
-gulp.task('browser-sync', function() { // Создаем таск browser-sync
-    browserSync({ // Выполняем browserSync
-        server: { // Определяем параметры сервера
-            baseDir: 'dist' // Директория для сервера - app
+gulp.task('serve', function (cb) {
+    browserSync.init({
+        server: {
+            baseDir: path.build.html
         },
-        notify: false // Отключаем уведомления
-    });});
-
-gulp.task('compress', function () {
-    gulp.src('app/img/*')
-        .pipe(imagemin({
-            progressive: true
-        }))
-        .pipe(gulp.dest('dist/img/'))
-        .pipe(browserSync.reload({stream: true}));
+        port: 3000
+    });
+    cb();
 });
 
-gulp.task('watch', ['sass', 'browser-sync', 'compress'], function() {
-    gulp.watch('app/sass/**/*.scss', ['sass']); // Наблюдение за sass файлами в папке sass
-    gulp.watch('dist/*.html', browserSync.reload); // Наблюдение за HTML файлами в корне проекта
-    gulp.watch('dist/js/**/*.js', browserSync.reload); // Наблюдение за JS файлами в папке js
-    gulp.watch('app/img/*', ['compress']);
-});
+gulp.task('build', gulp.series(
+        'clean',
+        gulp.parallel(buildJs, buildHtml, buildStyles, buildImg),
+        'serve'
+    )
+);
+
+gulp.task('watch', gulp.series(
+        'clean',
+        gulp.parallel(watchJs, watchHtml, watchStyles, watchImg),
+        'serve'
+    )
+);
+
+gulp.task('default', gulp.parallel('watch'));
+
+
+function buildJs(cb) {
+    init.bundleJs(browserSync);
+    cb();
+}
+
+function watchJs(cb) {
+    init.bundleJs(browserSync, true);
+    cb();
+}
+
+function buildHtml(cb) {
+    init.pipeHtml(browserSync);
+    cb();
+}
+
+function watchHtml(cb) {
+    init.pipeHtml(browserSync, true);
+    cb();
+}
+
+function buildStyles(cb) {
+    init.pipeStyle(browserSync);
+    cb();
+}
+
+function watchStyles(cb) {
+    init.pipeStyle(browserSync, true);
+    cb();
+}
+
+function buildImg(cb) {
+    init.pipeImg(browserSync);
+    cb();
+}
+
+function watchImg(cb) {
+    init.pipeImg(browserSync, true);
+    cb();
+}
