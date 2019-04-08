@@ -47,7 +47,8 @@
                 <div class="input-wrapper">
                     <input type="text" name="recipient-full-name"
                            class="form__input" placeholder="Name Surname"
-                           title="Jonathan Smith" maxlength="30" required
+                           title="Jonathan Smith" maxlength="30"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="flex-box left">
@@ -55,7 +56,8 @@
                         <input type="text" name="recipient-phone-number"
                                class="form__input part-width-smaller"
                                placeholder="Daytime Phone"
-                               title="+7(987)123-77-88" maxlength="20" required
+                               title="+7(987)123-77-88" maxlength="20"
+                               autocomplete="off" required
                         >
                     </div>
                     <div class="form__block__comment">
@@ -66,7 +68,8 @@
                 <div class="input-wrapper">
                     <input type="text" name="recipient-street-address"
                            class="form__input" placeholder="Street Address"
-                           title="Pushkina" maxlength="25" required
+                           title="Pushkina" maxlength="25"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="input-wrapper">
@@ -74,12 +77,14 @@
                            class="form__input"
                            placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
                            title="format: All except: '+', '=', '*'" maxlength="25"
+                           autocomplete="off"
                     >
                 </div>
                 <div class="input-wrapper target-sign push-top_30">
                     <input type="text" name="recipient-city"
                            class="form__input" placeholder="City"
-                           title="Kyiv" maxlength="25" required
+                           title="Kyiv" maxlength="25"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="flex-box between">
@@ -92,7 +97,8 @@
                                    class="form__input part-width-smaller"
                                    placeholder="Country"
                                    title="please, choose the Country"
-                                   maxlength="25" required
+                                   maxlength="25"
+                                   autocomplete="off" required
                             >
                         </div>
                     </div>
@@ -100,8 +106,8 @@
                         <input type="text" name="recipient-zip"
                                class="form__input part-width-small"
                                placeholder="ZIP"
-                               title="420015"
-                               maxlength="8" required
+                               title="420015" maxlength="8"
+                               autocomplete="off" required
                         >
                     </div>
                 </div>
@@ -115,20 +121,23 @@
                 <div class="input-wrapper">
                     <input type="text" name="billing-full-name"
                            class="form__input" placeholder="Full Name"
-                           title="Jonathan Smith" maxlength="30" required
+                           title="Jonathan Smith" maxlength="30"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="input-wrapper">
                     <input type="email" name="billing-email"
                            class="form__input" placeholder="Email Address"
-                           title="j.smith@gmail.com" maxlength="30" required
+                           title="j.smith@gmail.com" maxlength="30"
+                           autocomplete="off" required
                     >
                 </div>
                 <h3>Billing Address</h3>
                 <div class="input-wrapper">
                     <input type="text" name="billing-street-address"
                            class="form__input" placeholder="Street Address"
-                           title="Pushkina" maxlength="25" required
+                           title="Pushkina" maxlength="25"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="input-wrapper">
@@ -136,13 +145,14 @@
                            class="form__input"
                            placeholder="Apt, Suite, Bldg, Gate Code. (optional)"
                            title="format: All except: '+', '=', '*'"
-                           maxlength="25"
+                           maxlength="25" autocomplete="off"
                     >
                 </div>
                 <div class="input-wrapper target-sign push-top_30">
                     <input type="text" name="billing-city"
                            class="form__input" placeholder="City"
-                           title="Kyiv" maxlength="25" required
+                           title="Kyiv" maxlength="25"
+                           autocomplete="off" required
                     >
                 </div>
                 <div class="flex-box between">
@@ -153,18 +163,17 @@
                         <div class="option__block">
                             <input type="text" name="billing-country"
                                    class="form__input part-width-smaller"
-                                   placeholder="Country"
+                                   placeholder="Country" maxlength="25"
                                    title="Please, choose the Country"
-                                   maxlength="25" required
+                                   autocomplete="off" required
                             >
                         </div>
                     </div>
                     <div class="input-wrapper push-top_30">
                         <input type="text" name="billing-zip"
                                class="form__input part-width-small"
-                               placeholder="ZIP"
-                               title="420015"
-                               maxlength="8" required
+                               placeholder="ZIP" title="420015" maxlength="8"
+                               autocomplete="off" required
                         >
                     </div>
                 </div>
@@ -182,7 +191,8 @@
                     <input type="text" name="card-name"
                            class="form__input"
                            placeholder="Name as it appears on your card"
-                           title="Jonathan Smith" maxlength="30" required
+                           title="Jonathan Smith" maxlength="30"
+                           autocomplete="off" required
                     >
                 </div>
                 <h3>Card Number</h3>
@@ -191,7 +201,7 @@
                            class="form__input"
                            placeholder="XXXX XXXX XXXX XXXX XXXX"
                            title="Please, choose the card number 20 digits"
-                           maxlength="24" title="" required
+                           maxlength="24" autocomplete="off" required
                     >
                 </div>
                 <div class="card-date-wrapper flex-box left">
@@ -201,8 +211,8 @@
                             <input type="text" name="card-date"
                                    class="form__input part-width-smallest"
                                    placeholder="MM / YY" title=""
-                                   title="MMYY: 0518"
-                                   maxlength="7" required
+                                   title="MMYY: 0518" maxlength="7"
+                                   autocomplete="off" required
                             >
                         </div>
                     </div>
@@ -211,7 +221,8 @@
                         <div class="input-wrapper">
                             <input type="text" name="card-code"
                                    class="form__input part-width-smallest"
-                                   title="0458" maxlength="4" required
+                                   title="0458" maxlength="4"
+                                   autocomplete="off" required
                             >
                         </div>
                     </div>
@@ -225,14 +236,14 @@
             <h2>Thank You for Your order!</h2>
             <p class="order-info">Order number is: <span id="order-number"></span></p>
             <div class="push-top_30">
-                <p>You will recieve an email confirmation</p>
+                <p>You will receive an email confirmation</p>
                 <p>shortly to <span id="payer-email"></span></p>
             </div>
             <div class="deliver-info">
                 <p>The order date:</p>
                 <p id="order-date"></p>
             </div>
-            <a href="#">Print Recipe</a>
+            <a href="#" class="thankU-wrapper__resultLink">Print Recipe</a>
         </div>
     </div>
     <div class="cart-info">

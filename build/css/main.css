@@ -649,13 +649,13 @@ main {
     font-size: 30px;
     font-weight: 400;
     line-height: 34px; }
-  .thankU-wrapper a {
+  .thankU-wrapper__resultLink {
     display: inline-block;
     margin-top: 70px;
     color: #5a1094;
     font-weight: 800;
     border-bottom: 1px solid #5a1094; }
-    .thankU-wrapper a:hover {
+    .thankU-wrapper__resultLink:hover {
       -webkit-animation: popup 0.4s ease;
       animation: popup 0.4s ease; }
   .thankU-wrapper .order-info {

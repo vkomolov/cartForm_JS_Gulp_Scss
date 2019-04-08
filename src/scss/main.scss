@@ -563,7 +563,7 @@ main {
     @include init-font(30px, 400);
   }
 
-  a {
+  &__resultLink {
     display: inline-block;
     margin-top: 70px;
     color: $color-violet;

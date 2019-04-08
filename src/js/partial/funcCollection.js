@@ -149,6 +149,19 @@ exports.insertAlarm = ( targetObj, data, type="empty" ) => {
     else insertSpan(targetObj, data.alertMessage, type); //creating custom message
 };
 
+/**@description to show the alarm message above the input wrapper for a certain time,
+ * then to remove the alarm message;
+ * @param {object} parentTarget; the wrapper of the input;
+ * @param {string} type; the type of the message ("empty", "error", "custom");
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+exports.showAlertAndOff = (parentTarget, data, type="empty") => {
+    data.init.insertAlarm(parentTarget, data, type);
+    setTimeout(() => {
+        data.init.removeAlerts(data);
+    }, 1000);
+};
+
 /**@description: separates the properties of the inputs to Recipient and Payer Data;
  * it updates the data.order with the values of Recipient and Payer Data;
  * @param {object} data: the initial data with funcs and variables;
@@ -175,6 +188,17 @@ exports.processOrder = ( data ) => {
      * kept in the object.
      * */
     separateObj(inputValues, regExp, order);
+};
+
+/**@description creates the Date from the input chars (yy, mm);
+ * @param {string} yy - year
+ * @param {string} mm - month
+ * @return {object} new Date
+ * **/
+exports.stringToDate = ( yy, mm ) => {
+    let month = +mm - 1; //month minus 1 (jan: 0)
+    let year = +yy + 2000;
+    return new Date(year, month);
 };
 
 ///INNER FUNCTIONS
@@ -204,17 +228,6 @@ function setLocalStorage(name, data)  {
         };
         localStorage.setItem(name, JSON.stringify(dataWithDate));
     }
-}
-
-/**@description creates the Date from the input chars (yy, mm);
- * @param {string} yy - year
- * @param {string} mm - month
- * @return {object} new Date
- * **/
-function stringToDate( yy, mm ) {
-    let month = +mm - 1; //month minus 1 (jan: 0)
-    let year = +yy + 2000;
-    return new Date(year, month);
 }
 
 /**@description: insert a span inside the targetObj
@@ -256,7 +269,7 @@ function getAllInputs( data ) {
             let inputValue = data.form.elements[elem].value;
             let inputYear = inputValue.slice(-2);
             let inputMonth = inputValue.slice(0, 2);
-            inputValues[elem] = stringToDate(inputYear, inputMonth);
+            inputValues[elem] = data.init.stringToDate(inputYear, inputMonth);
         }
         else {
             inputValues[elem] = data.form.elements[elem].value;

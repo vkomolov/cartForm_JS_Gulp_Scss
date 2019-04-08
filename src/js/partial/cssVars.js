@@ -33,6 +33,7 @@ module.exports = {
     storageArea: 'area',
     leftBarName: 'person-info',
     rightBarName: 'cart-info',
+    cardType: 'card-type',
     cartQntyName: 'cart__qnty',
     cartList: 'cart-list',
     cartInfoTotal: 'cart-info__total',
@@ -48,10 +49,13 @@ module.exports = {
     alertMessage: 'alert-message',
     marked: 'marked',
     active: 'active',
+    ready: 'ready',
     bold: 'bold',
+    red: 'red',
     thankU: 'thankU-wrapper',
     orderNoSpan: 'order-number',
     payerEmailSpan: 'payer-email',
     orderDate: 'order-date',
-    buttonContinue: 'button_continue'
+    buttonContinue: 'button_continue',
+    resultLink: 'thankU-wrapper__resultLink'
 };

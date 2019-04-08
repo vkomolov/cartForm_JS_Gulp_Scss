@@ -11,5 +11,14 @@ When filling the input of the Country - to search and show the matching;
 - To realize the inputs validation by the separate Regexp file;
 - To write all class-names, etc.(connected to DOM) in the separate file for 
 convenience in possible edit;
+
+## Concept
+- To realize the concept of the only object 'data', which contains all
+the necessary information on styles classes, variables, functions etc...
+The object 'data' will be sent to the functions through the arguments;
+The functions will have the access to the data properties;
+Unlike the clean funcs, here all the funcs work around one and the same
+data and can modify the properties for the future use in the next funcs;
+- Such concept of the only "data" usage is considered to be experimental;
 ### Stack: Gulp4, SCSS, ES-2015;
 

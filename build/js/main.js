@@ -279,21 +279,27 @@ function log(item) {
 
 module.exports = function (data) {
   var form = data.form,
-      order = data.order;
-  var leftBar = document.querySelector(".".concat(data.leftBarName));
+      order = data.order,
+      active = data.active,
+      ready = data.ready;
   var rightBar = document.querySelector(".".concat(data.rightBarName));
   var thankU = document.querySelector(".".concat(data.thankU));
   var orderNumberSpan = document.getElementById(data.orderNoSpan);
   var payerEmailSpan = document.getElementById(data.payerEmailSpan);
   var orderDateSpan = document.getElementById(data.orderDate);
+  var resultLink = thankU.querySelector(".".concat(data.resultLink));
   form.remove();
-  rightBar.classList.add("ready"); //giving shade layer to the cart block
+  rightBar.classList.add(ready); //giving shade layer to the cart block
 
-  thankU.classList.add("active"); //showing 'thanks'
+  thankU.classList.add(active); //showing 'thanks'
 
   orderNumberSpan.textContent = order.orderNo;
   orderDateSpan.textContent = order.orderDate.toDateString();
   payerEmailSpan.textContent = order.payer['billing-email'];
+  log(thankU);
+  resultLink.addEventListener('click', function () {
+    console.log(order);
+  });
 }; ///dev
 
 
@@ -516,6 +522,7 @@ module.exports = {
   storageArea: 'area',
   leftBarName: 'person-info',
   rightBarName: 'cart-info',
+  cardType: 'card-type',
   cartQntyName: 'cart__qnty',
   cartList: 'cart-list',
   cartInfoTotal: 'cart-info__total',
@@ -531,27 +538,36 @@ module.exports = {
   alertMessage: 'alert-message',
   marked: 'marked',
   active: 'active',
+  ready: 'ready',
   bold: 'bold',
+  red: 'red',
   thankU: 'thankU-wrapper',
   orderNoSpan: 'order-number',
   payerEmailSpan: 'payer-email',
   orderDate: 'order-date',
-  buttonContinue: 'button_continue'
+  buttonContinue: 'button_continue',
+  resultLink: 'thankU-wrapper__resultLink'
 };
 
 },{}],7:[function(require,module,exports){
 'use strict';
 /**@description
  * - it hangs listeners to 'keydown', 'focus', 'blur', 'input', 'change' events;
- *
+ * - "click" events are hanged on the total form, identifying the target
+ * by the dataset value of the attributes;
  * */
 
 module.exports = function (data) {
   var checkForNext = require('./checkForNext');
 
+  var testRegExp = require('./testRegExp');
+
   var form = data.form,
       active = data.active,
-      bold = data.bold;
+      bold = data.bold,
+      marked = data.marked,
+      red = data.red,
+      cardType = data.cardType;
   /**@description
    * if during input the 'enter' or 'escape' keys pressed, then the input is blur
    * */
@@ -585,10 +601,6 @@ module.exports = function (data) {
       toggleParent(target, active);
     }
   }, true); ///CLICK EVENT
-
-  /**@description "click" events are hanged on the total form, identifying the target
-   * by the dataset value of the attributes;
-   * */
 
   form.addEventListener("click", function (_ref3) {
     var target = _ref3.target;
@@ -624,7 +636,7 @@ module.exports = function (data) {
       hiddenInput.focus();
     }
 
-    if (target.dataset.type === "option") {
+    if (target.dataset.type === 'option') {
       var _optionBlock = target.parentElement.parentElement;
 
       var _hiddenInput = _optionBlock.querySelector("input"); // "recipient-country" or "billing-country"
@@ -638,7 +650,7 @@ module.exports = function (data) {
 
       _hiddenInput.value = target.textContent;
 
-      if (_hiddenInput.value !== "") {
+      if (_hiddenInput.value.length) {
         pseudoInput.textContent = _hiddenInput.value;
         pseudoInput.classList.add(bold);
         /**@description
@@ -654,8 +666,168 @@ module.exports = function (data) {
       }
     }
   }); ///INPUT EVENT
-  ///CHANGE EVENT
-  //////FUNCTIONS
+
+  form.addEventListener("input", function (_ref4) {
+    var target = _ref4.target;
+    var rExpType = data.inputNamesObj[target.name].type;
+    /**@description testing input.value with its regExp, stored in 'inputNamesObj';
+     * */
+
+    testRegExp(target, data);
+
+    if (rExpType === "stringMaySpace") {
+      if (searchInArray(target.parentElement, target.value, data)) {
+        //searching chars in the country array
+        target.style.color = "";
+      } else {
+        target.classList.add(red);
+      }
+    }
+  }, true); ///CHANGE EVENT
+
+  form.addEventListener("change", function (_ref5) {
+    var target = _ref5.target;
+    var rExpType = data.inputNamesObj[target.name].type;
+    target.value = target.value.trim();
+
+    if (target.value.length) {
+      if (!data.regExpObj[rExpType].test(target.value)) {
+        //rechecking the value for safe
+        target.value = "";
+        target.classList.add(marked);
+        data.init.showAlertAndOff(target.parentElement, data, "error");
+      } else {
+        //if value preliminary validated through regExp
+        data.init.removeAlerts(data);
+        target.classList.remove(marked);
+        var cases = {
+          "spacedString": function spacedString() {
+            var val = target.value;
+
+            if (val.split(" ").length === 1) {
+              //if no second word (0 is null!)
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            }
+          },
+          "zip": function zip() {
+            if (target.value.length < 6) {
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            }
+          },
+          "phone": function phone() {
+            if (target.value.length < 16) {
+              //if validated value is less then needed
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            } else {
+              target.value = target.value.slice(0, 2) + " " + target.value.slice(2);
+              target.value = target.value.slice(0, 8) + " " + target.value.slice(8);
+            }
+          },
+          "stringMaySpace": function stringMaySpace() {
+            ///span which hides the input and option list in absolute hidden
+            var pseudoInput = data.form.querySelector("span[data-type=".concat(target.name));
+            var optionBlock = target.parentElement;
+            var selectionBlock = optionBlock.parentElement.querySelector(".".concat(data.selectionBlock));
+            var res = false;
+
+            if (data.areaArr.includes(target.value)) {
+              res = true;
+            }
+
+            if (!res) {
+              target.classList.add(red);
+              pseudoInput.classList.remove(bold);
+            } else {
+              pseudoInput.textContent = target.value;
+              pseudoInput.classList.remove(red);
+              pseudoInput.classList.add(bold);
+              setTimeout(function () {
+                optionBlock.classList.remove(active); //to switch block to display: none
+
+                selectionBlock.classList.remove(active); //to switch the search-icon off
+              }, 300);
+            }
+          },
+          "cardNumber": function cardNumber() {
+            if (target.value.length < 16) {
+              //if validated value is less then needed
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            } else {
+              var temp = target.value;
+              temp = temp.replace(/ /gi, "");
+
+              for (var i = 4; i < temp.length;) {
+                temp = temp.slice(0, i) + " " + temp.slice(i);
+                i += 5;
+              }
+
+              target.value = temp;
+              target.parentElement.classList.add(cardType); //adding card-icon to DOM element
+            }
+          },
+          "cardDate": function cardDate() {
+            if (target.value.length < 4) {
+              //if validated value is less then needed
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            } else {
+              var m = target.value.slice(0, 2);
+              var y = target.value.slice(-2);
+              var curDate = new Date();
+              var curYear = curDate.getFullYear();
+              var curYearLastDits = curYear.toString().slice(-2); //getting last two digits of year
+
+              var innDate = null; //incoming date
+
+              if (y >= curYearLastDits) {
+                if (m >= 0 && m < 13) {
+                  //writing as Jan - 1 (not as 0)
+                  innDate = data.init.stringToDate(y, m);
+
+                  if (innDate > curDate) {
+                    target.value = target.value.slice(0, 2) + " / " + target.value.slice(2);
+                  } else {
+                    target.value = "";
+                    target.classList.add(marked);
+                    data.init.showAlertAndOff(target.parentElement, data, "card date is expired");
+                  }
+                } else {
+                  target.value = "";
+                  target.classList.add(marked);
+                  data.init.showAlertAndOff(target.parentElement, data, "month: ".concat(m, " is not correct"));
+                }
+              } else {
+                target.value = "";
+                target.classList.add(marked);
+                data.init.showAlertAndOff(target.parentElement, data, "card date is expired");
+              }
+            }
+          },
+          "email": function email() {
+            //very simple for email: to be validated on the Back
+            if (target.value.indexOf("@") < 0 || target.value.indexOf(".") < 0) {
+              target.value = "";
+              target.classList.add(marked);
+              data.init.showAlertAndOff(target.parentElement, data, "error");
+            }
+          }
+        };
+
+        if (cases[rExpType]) {
+          cases[rExpType]();
+        }
+      }
+    }
+  }); //////FUNCTIONS
 
   /**@description toggles the Parent element`s border;
    * @param {object} target; DOM element, which has the Parent`s border to toggle;
@@ -668,8 +840,8 @@ module.exports = function (data) {
   /**@description: dynamically creates the option list of the countries, which will
    * be filtered on matching the search input value;
    * It listens to the input and sorts countries` list with the matching chars.
-   * @param: {object} objTarget - the DOM Container for the option list
-   * @param: {array} areaArr - the list of the countries for selection
+   * @param {object} objTarget - the DOM Container for the option list
+   * @param {array} areaArr - the list of the countries for selection
    * */
 
 
@@ -692,14 +864,60 @@ module.exports = function (data) {
 
     objTarget.insertBefore(optionWrapper, objTarget.firstChild);
   }
-}; ///dev
+};
+/**@description
+ * @param {object} parentTarget; the wrapper of the input;
+ * @param {string} searchStr; the type of the message ("empty", "error", "custom");
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+
+function searchInArray(parentTarget, searchStr, data) {
+  var foundArr = data.areaArr.filter(function (item) {
+    return item.indexOf(searchStr) !== -1;
+  });
+
+  if (foundArr.length) {
+    setSelectList(parentTarget, foundArr, data);
+    return true;
+  }
+
+  return false;
+}
+/**@description: dinamically creates the option list of countries;
+ * It listens to the 'input' event and sorts the countries` list with the matching chars;
+ * @param {object} parentTarget the DOM Container for the option list
+ * @param {array} foundArr - the list of the countries
+ * @param {object} data: the initial data with the funcs and the variables;
+ * */
+
+
+function setSelectList(parentTarget, foundArr, data) {
+  var optionWrapper = parentTarget.querySelector(".".concat(data.optionWrapper));
+
+  if (optionWrapper) {
+    optionWrapper.parentElement.removeChild(optionWrapper); //remaking optionWrapper
+  }
+
+  optionWrapper = document.createElement("div");
+  optionWrapper.classList.add(data.optionWrapper);
+
+  for (var i = 0; i < foundArr.length; i++) {
+    var option = document.createElement("span");
+    option.setAttribute("data-type", "option");
+    option.textContent = foundArr[i];
+    optionWrapper.appendChild(option);
+  }
+
+  parentTarget.insertBefore(optionWrapper, parentTarget.firstChild);
+} ///dev
 
 
 function log(item) {
   console.log(item);
 }
 
-},{"./checkForNext":4}],8:[function(require,module,exports){
+},{"./checkForNext":4,"./testRegExp":13}],8:[function(require,module,exports){
 'use strict'; //imports
 
 var _require = require('../classes'),
@@ -875,6 +1093,21 @@ exports.insertAlarm = function (targetObj, data) {
   } else insertSpan(targetObj, data.alertMessage, type); //creating custom message
 
 };
+/**@description to show the alarm message above the input wrapper for a certain time,
+ * then to remove the alarm message;
+ * @param {object} parentTarget; the wrapper of the input;
+ * @param {string} type; the type of the message ("empty", "error", "custom");
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+
+exports.showAlertAndOff = function (parentTarget, data) {
+  var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "empty";
+  data.init.insertAlarm(parentTarget, data, type);
+  setTimeout(function () {
+    data.init.removeAlerts(data);
+  }, 1000);
+};
 /**@description: separates the properties of the inputs to Recipient and Payer Data;
  * it updates the data.order with the values of Recipient and Payer Data;
  * @param {object} data: the initial data with funcs and variables;
@@ -904,6 +1137,19 @@ exports.processOrder = function (data) {
 
 
   separateObj(inputValues, regExp, order);
+};
+/**@description creates the Date from the input chars (yy, mm);
+ * @param {string} yy - year
+ * @param {string} mm - month
+ * @return {object} new Date
+ * **/
+
+
+exports.stringToDate = function (yy, mm) {
+  var month = +mm - 1; //month minus 1 (jan: 0)
+
+  var year = +yy + 2000;
+  return new Date(year, month);
 }; ///INNER FUNCTIONS
 
 /**@description it cleans the classname in the nodeList of DOM elements;
@@ -934,19 +1180,6 @@ function setLocalStorage(name, data) {
     };
     localStorage.setItem(name, JSON.stringify(dataWithDate));
   }
-}
-/**@description creates the Date from the input chars (yy, mm);
- * @param {string} yy - year
- * @param {string} mm - month
- * @return {object} new Date
- * **/
-
-
-function stringToDate(yy, mm) {
-  var month = +mm - 1; //month minus 1 (jan: 0)
-
-  var year = +yy + 2000;
-  return new Date(year, month);
 }
 /**@description: insert a span inside the targetObj
  * @param {object} parent; the target Object to insert alert in;
@@ -994,7 +1227,7 @@ function getAllInputs(data) {
       var inputValue = data.form.elements[elem].value;
       var inputYear = inputValue.slice(-2);
       var inputMonth = inputValue.slice(0, 2);
-      inputValues[elem] = stringToDate(inputYear, inputMonth);
+      inputValues[elem] = data.init.stringToDate(inputYear, inputMonth);
     } else {
       inputValues[elem] = data.form.elements[elem].value;
     }
@@ -1234,6 +1467,125 @@ module.exports = {
   //will be then processed
   "cardCode": /^[0-9]{1,4}$/i
 };
+
+},{}],13:[function(require,module,exports){
+'use strict';
+/**@description to test the values of the input;
+ * - it checks the type of the input from data.inputNamesObj by its name;
+ * - it takes the regExp according to the type of the input;
+ * - it tests the value of the input with the regExp taken;
+ * - if the value does not meets the regExp then to insertAlarm to the input wrapper;
+ * - as the event is "input", the input`s value will be tested on each char input;
+ * if after the last input char the value doesn`t meet the regExp, then to remove the
+ * last char and to temporary insert the alarm message, showing the sample format of
+ * the correct mask;
+ * @param {object} input; the input element to test the value;
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+module.exports = function (input, data) {
+  var rExpType = data.inputNamesObj[input.name].type;
+  var regExp = data.regExpObj[rExpType];
+
+  if (!regExp.test(input.value)) {
+    data.init.showAlertAndOff(input.parentElement, data, "error");
+    setTimeout(function () {
+      input.value = input.value.slice(0, -1); //showing then deleting last char
+    }, 300);
+  } else {
+    //if regExp passes
+    defaultInput(input, data); //resetting input style
+
+    if (rExpType === "string" || rExpType === "spacedString" || rExpType === "stringMaySpace") {
+      input.value = input.value[0].toUpperCase() + input.value.slice(1).toLowerCase();
+    }
+
+    if (rExpType === "spacedString" || rExpType === "stringMaySpace") {
+      if (input.value.indexOf(" ") !== -1) {
+        //if 'space' in string (for full name input)
+        var spaceInd = input.value.indexOf(" ");
+
+        if (input.value.length - 1 - spaceInd >= 1) {
+          //if input has char/s after space
+          var capTale = input.value[spaceInd + 1].toUpperCase() + input.value.slice(spaceInd + 2).toLowerCase();
+          input.value = input.value.slice(0, spaceInd + 1) + capTale; //string before space and after
+        }
+      }
+    }
+
+    if (rExpType === "phone") {
+      //////if the place for '+'
+      if (input.value.indexOf("+") === -1) {
+        input.value = "+" + input.value;
+      } //////if the place for '('
+
+
+      if (input.value.indexOf("(") === -1 && input.value.length === 3) {
+        var lastChar = input.value.slice(-1);
+        input.value = input.value.slice(0, -1) + "(" + lastChar;
+      } /////if '(' is not in place
+
+
+      if (input.value.indexOf("(") !== -1 && input.value.indexOf("(") !== 2) {
+        data.init.insertAlarm(input.parentElement, data, "error");
+        setTimeout(function () {
+          input.value = input.value.slice(0, -1); //showing then deleting last char
+        }, 300);
+      } //////if the place for ')'
+
+
+      if (input.value.indexOf(")") === -1 && input.value.length === 7) {
+        var _lastChar = input.value.slice(-1);
+
+        input.value = input.value.slice(0, -1) + ")" + _lastChar;
+      } //if ')' is not in place
+
+
+      if (input.value.indexOf(")") !== -1 && input.value.indexOf(")") !== 6) {
+        data.init.insertAlarm(input.parentElement, data, "error");
+        setTimeout(function () {
+          input.value = input.value.slice(0, -1); //showing then deleting last char
+        }, 300);
+      } //////if the place for '-'
+
+
+      if (input.value.indexOf("-") === -1 && input.value.length === 11 || input.value.indexOf("-", 11) === -1 && input.value.length === 14) {
+        var _lastChar2 = input.value.slice(-1);
+
+        input.value = input.value.slice(0, -1) + "-" + _lastChar2;
+      }
+
+      if (input.value.indexOf("-") !== -1 && input.value.indexOf("-") !== 10 || input.value.indexOf("-", 11) !== -1 && input.value.indexOf("-", 11) !== 13) {
+        data.init.insertAlarm(input.parentElement, data, "error");
+        setTimeout(function () {
+          input.value = input.value.slice(0, -1); //showing then deleting last char
+        }, 300);
+      }
+    }
+
+    if (rExpType === "cardNumber") {
+      input.parentElement.classList.remove("card-type"); //eliminating possible card-icon of previous value
+
+      if (input.value.indexOf(" ") === -1 && input.value.length === 5 || input.value.indexOf(" ", 9) === -1 && input.value.length === 10 || input.value.indexOf(" ", 14) === -1 && input.value.length === 15 || input.value.indexOf(" ", 19) === -1 && input.value.length === 20) {
+        var _lastChar3 = input.value.slice(-1);
+
+        input.value = input.value.slice(0, -1) + " " + _lastChar3;
+      }
+    }
+  }
+};
+/**@description it removes all alerts around the given input and resets to default
+ * the styles of the input;
+ * @param {object} input;
+ * @param {object} data: the initial data with funcs and variables;
+ * */
+
+
+function defaultInput(input, data) {
+  data.init.removeAlerts(data);
+  input.style.caretColor = "";
+  input.style.color = "";
+}
 
 },{}]},{},[2])
 //# sourceMappingURL=main.js.map
